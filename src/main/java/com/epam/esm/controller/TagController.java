@@ -1,11 +1,12 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.entity.Tag;
-import com.epam.esm.logic.TagService;
+import com.epam.esm.model.entity.Tag;
+import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
@@ -16,6 +17,13 @@ public class TagController {
     @Autowired
     public TagController(TagService tagService) {
         this.tagService = tagService;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public void create(@RequestBody Tag tag, HttpServletResponse response) {
+        long id = tagService.create(tag);
+        response.addHeader("Location", "/tags/" + id);
     }
 
     @GetMapping
@@ -31,9 +39,9 @@ public class TagController {
         return tagService.findById(id);
     }
 
-    @GetMapping("/null")
-    @ResponseStatus(HttpStatus.OK)
-    public String test() {
-        return "Hello world!";
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteById(@PathVariable("id") long id) {
+        tagService.deleteById(id);
     }
 }
