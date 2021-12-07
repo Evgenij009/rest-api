@@ -1,7 +1,7 @@
-package com.epam.esm.dto;
+package com.epam.esm.model.dto;
 
-import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.entity.Tag;
+import com.epam.esm.model.entity.GiftCertificate;
+import com.epam.esm.model.entity.Tag;
 import lombok.Builder;
 import lombok.Data;
 

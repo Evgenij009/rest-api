@@ -1,4 +1,4 @@
-package com.epam.esm.entity;
+package com.epam.esm.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class GiftCertificateHasTag {
     private long giftCertificateId;
     private long tagId;
+    private long id;
 }
