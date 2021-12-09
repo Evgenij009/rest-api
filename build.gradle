@@ -23,6 +23,13 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
     testCompileOnly 'org.projectlombok:lombok:1.18.22'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+
+    testImplementation 'org.mockito:mockito-all:1.10.19'
+    testImplementation 'org.springframework:spring-test:5.3.5'
+    testImplementation 'com.h2database:h2:1.4.187'
 }
 
 test {
