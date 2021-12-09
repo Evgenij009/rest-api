@@ -1,12 +1,16 @@
 package com.epam.esm.exception;
 
 import com.epam.esm.model.ExceptionInfo;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -35,7 +39,7 @@ public class ExceptionAdviser {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ExceptionInfo> handleInvalidEntityException(
+    public ResponseEntity<ExceptionInfo> handleArgumentNotValidException(
             MethodArgumentNotValidException e, Locale locale) {
         FieldError fieldError = e.getBindingResult().getFieldError();
         String message = e.getMessage();
@@ -46,6 +50,13 @@ public class ExceptionAdviser {
                 40000, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidEntityException.class)
+    public ResponseEntity<ExceptionInfo> handleInvalidEntityException(InvalidEntityException e,
+                                                                          Locale locale) {
+        return buildErrorResponse(resolveResourceBundle(e.getMessage(), locale),
+                40351, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(InvalidParameterException.class)
     public ResponseEntity<ExceptionInfo> handleInvalidParametersException(InvalidParameterException e,
                                                                           Locale locale) {
@@ -53,9 +64,32 @@ public class ExceptionAdviser {
                 40001, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ExceptionInfo> handleNoSuchEntityException
+            (MissingServletRequestParameterException e) {
+        return buildErrorResponse(e.getMessage(), 40002, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(TypeMismatchException.class)
+    public ResponseEntity<ExceptionInfo> handleTypeMismatchException(TypeMismatchException e) {
+        return buildErrorResponse(e.getMessage(), 40003, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(NumberFormatException.class)
     public ResponseEntity<ExceptionInfo> handleNumberFormatException(NumberFormatException e){
-        return buildErrorResponse(e.getMessage(), 40003, HttpStatus.BAD_REQUEST);
+        return buildErrorResponse("Wrong request: " + e.getMessage(), 41303, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ExceptionInfo> handleNotReadableBodyException(Locale locale) {
+        return buildErrorResponse(resolveResourceBundle("request.body.missing", locale),
+                40004, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ExceptionInfo> handleMethodNotSupportedException(
+            HttpRequestMethodNotSupportedException e) {
+        return buildErrorResponse(e.getMessage(), 40500, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)

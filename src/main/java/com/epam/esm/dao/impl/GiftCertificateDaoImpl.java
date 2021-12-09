@@ -4,7 +4,7 @@ import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.model.entity.GiftCertificate;
 import com.epam.esm.util.ColumnName;
 import com.epam.esm.util.SortParamsContext;
-import com.epam.esm.util.UtilBuildQuery;
+import com.epam.esm.util.UtilBuilderQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -32,26 +32,24 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
                     "FROM gift_certificates";
     private static final String SQL_INSERT_GIFT_CERTIFICATE =
             "INSERT INTO gift_certificates (name, description, price,  duration) VALUES(?,?,?,?)";
-    private static final String SQL_FIND_GIFT_CERTIFICATE_BY_ID =
-            "SELECT id, name, description, price, duration, create_date, last_update_date " +
-                    "FROM gift_certificates WHERE id=?";
-    private static final String SQL_FIND_GIFT_CERTIFICATE_BY_NAME =
-            "SELECT id, name, description, price, duration, create_date, last_update_date " +
-                    "FROM gift_certificates WHERE name=?";
+    private static final String SQL_FIND_GIFT_CERTIFICATE_BY_ID = SQL_FIND_ALL + " WHERE id=?";
+    private static final String SQL_FIND_GIFT_CERTIFICATE_BY_NAME = SQL_FIND_ALL + " WHERE name=?";
     private static final String SQL_DELETE_GIFT_CERTIFICATE_BY_ID =
             "DELETE FROM gift_certificates WHERE id=?";
-    private static final String SQL_UPDATE_GIFT_CERTIFICATE_PART_QUERY = "UPDATE gift_certificates SET last_update_date=NOW(), ";
-    private static final String SQL_WHERE = " WHERE id=?";
-    private static final String SQL_FIND_CERTIFICATE_IDS_BY_TAG_ID =
-            "SELECT id, name, description, price, duration, create_date, last_update_date " +
-            "FROM gift_certificates WHERE name=?";
+    private static final String SQL_UPDATE_GIFT_CERTIFICATE_PART_QUERY =
+            "UPDATE gift_certificates SET last_update_date=NOW(), ";
+    private static final String SQL_WHERE_WITH_ID = " WHERE id=?";
+    private static final String SQL_WHERE = " WHERE ";
+    private static final String SQL_AND_WITH_GAP = "AND ";
+    private static final String SQL_PART_QUERY_LIKE_NAME_AND_DESCRIPTION = "(name LIKE ? OR description LIKE ?)";
+    private static final String GAP = " ";
     private final JdbcTemplate jdbcTemplate;
-    private final UtilBuildQuery utilBuildQuery;
+    private final UtilBuilderQuery utilBuilderQuery;
 
     @Autowired
-    public GiftCertificateDaoImpl(JdbcTemplate jdbcTemplate, UtilBuildQuery utilBuildQuery) {
+    public GiftCertificateDaoImpl(JdbcTemplate jdbcTemplate, UtilBuilderQuery utilBuildQuery) {
         this.jdbcTemplate = jdbcTemplate;
-        this.utilBuildQuery = utilBuildQuery;
+        this.utilBuilderQuery = utilBuildQuery;
     }
 
     @Override
@@ -70,36 +68,55 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
     @Override
     public List<GiftCertificate> findAllWithSorting(SortParamsContext sortParamsContext) {
-        return null;
+        String query = SQL_FIND_ALL + utilBuilderQuery.buildSortingQuery(sortParamsContext);
+        return jdbcTemplate.query(query, ROW_MAPPER);
     }
 
     @Override
     public List<GiftCertificate> findAllWithFiltering(List<Long> ids, String partInfo) {
-        return null;
+        List<Object> values = new ArrayList<>();
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append(SQL_FIND_ALL).append(SQL_WHERE);
+        fillFilterQueryData(ids, partInfo, queryBuilder, values);
+        return jdbcTemplate.query(queryBuilder.toString(), ROW_MAPPER, values.toArray());
+    }
+
+    private void fillFilterQueryData(List<Long> ids, String partInfo,
+                                     StringBuilder queryBuilder, List<Object> values) {
+        if (ids != null && !ids.isEmpty()) {
+            String queryFilter = utilBuilderQuery.buildFilteringQuery(ColumnName.ID, ids.size());
+            queryBuilder.append(queryFilter);
+            values.addAll(ids);
+        }
+        if (partInfo != null) {
+            if (ids != null && !ids.isEmpty()) {
+                queryBuilder.append(SQL_AND_WITH_GAP);
+            }
+            queryBuilder.append(SQL_PART_QUERY_LIKE_NAME_AND_DESCRIPTION);
+            String regexPartInfo = utilBuilderQuery.buildRegexValue(partInfo);
+            values.add(regexPartInfo);
+            values.add(regexPartInfo);
+        }
     }
 
     @Override
-    public List<GiftCertificate> findAllWithSortingFiltering(SortParamsContext sortParamsContext, List<Long> ids, String partInfo) {
-        return null;
-    }
-
-    @Override
-    public List<Long> findTagIdsByCertificateId(long certificateId) {
-        return null;
-    }
-
-    @Override
-    public List<Long> findCertificateIdsByTagId(long tagId) {
-        return null;
+    public List<GiftCertificate> findAllWithSortingFiltering(
+            SortParamsContext sortParamsContext, List<Long> ids, String partInfo) {
+        List<Object> values = new ArrayList<>();
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append(SQL_FIND_ALL).append(SQL_WHERE);
+        fillFilterQueryData(ids, partInfo, queryBuilder, values);
+        queryBuilder.append(GAP).append(utilBuilderQuery.buildSortingQuery(sortParamsContext));
+        return jdbcTemplate.query(queryBuilder.toString(), ROW_MAPPER, values.toArray());
     }
 
     @Override
     public void updateById(long id, Map<String, Object> giftCertificateInfo) {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append(SQL_UPDATE_GIFT_CERTIFICATE_PART_QUERY);
-        String query = utilBuildQuery.buildUpdateAttributesQuery(giftCertificateInfo.keySet());
+        String query = utilBuilderQuery.buildUpdateAttributesQuery(giftCertificateInfo.keySet());
         queryBuilder.append(query);
-        queryBuilder.append(SQL_WHERE);
+        queryBuilder.append(SQL_WHERE_WITH_ID);
         List<Object> values = new ArrayList<>(giftCertificateInfo.values());
         values.add(id);
         jdbcTemplate.update(queryBuilder.toString(), values.toArray());

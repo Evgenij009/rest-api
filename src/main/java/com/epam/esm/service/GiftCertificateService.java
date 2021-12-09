@@ -10,6 +10,7 @@ public interface GiftCertificateService {
     long create(GiftCertificateDto giftCertificateDto);
     List<GiftCertificate> findAll();
     GiftCertificate findById(long id);
-    GiftCertificateDao updateById(long id, GiftCertificateDto giftCertificateDto);
+    GiftCertificateDto updateById(long id, GiftCertificateDto giftCertificateDto);
     void deleteById(long id);
+    List<GiftCertificateDto> findAllWithTags(String tagName, String partInfo, List<String> sortColumns, List<String> orderTypes);
 }

@@ -23,25 +23,25 @@ public class GiftCertificateValidator implements Validator<GiftCertificate> {
                 && isDurationValid(item.getDuration());
     }
 
-    private boolean isNameValid(String name) {
+    public boolean isNameValid(String name) {
         return name != null
-                && name.length() > NAME_MIN_LENGTH
-                && name.length() < NAME_MAX_LENGTH;
+                && name.length() >= NAME_MIN_LENGTH
+                && name.length() <= NAME_MAX_LENGTH;
     }
 
-    private boolean isDescriptionValid(String description) {
+    public boolean isDescriptionValid(String description) {
         return description != null
-                && description.length() > DESCRIPTION_MIN_LENGTH
-                && description.length() < DESCRIPTION_MAX_LENGTH;
+                && description.length() >= DESCRIPTION_MIN_LENGTH
+                && description.length() <= DESCRIPTION_MAX_LENGTH;
     }
 
-    private boolean isPriceValid(BigDecimal price) {
+    public boolean isPriceValid(BigDecimal price) {
         return price != null
                 && price.compareTo(PRICE_MIN_VALUE) > 0
                 && price.compareTo(PRICE_MAX_VALUE) < 0;
     }
 
-    private boolean isDurationValid(int duration) {
+    public boolean isDurationValid(int duration) {
         return duration >= DURATION_MIN_VALUE;
     }
 }

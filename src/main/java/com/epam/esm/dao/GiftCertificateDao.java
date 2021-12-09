@@ -14,8 +14,6 @@ public interface GiftCertificateDao {
     List<GiftCertificate> findAllWithFiltering(List<Long> ids, String partInfo);
     List<GiftCertificate> findAllWithSortingFiltering(SortParamsContext sortParamsContext,
                                                       List<Long> ids, String partInfo);
-    List<Long> findTagIdsByCertificateId(long certificateId);
-    List<Long> findCertificateIdsByTagId(long tagId);
     void updateById(long id, Map<String, Object> giftCertificateInfo);
     Optional<GiftCertificate> findById(long id);
     Optional<GiftCertificate> findByName(String name);

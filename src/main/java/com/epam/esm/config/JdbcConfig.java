@@ -14,15 +14,15 @@ import javax.sql.DataSource;
 @PropertySource("classpath:database.properties")
 public class JdbcConfig {
 
-    @Value("${db.driverClassName}")
+    @Value("${dataSource.db.driverClassName}")
     private String driverClassName;
-    @Value("${db.jdbcUrl}")
+    @Value("${dataSource.db.jdbcUrl}")
     private String jdbcUrl;
-    @Value("${db.user}")
+    @Value("${dataSource.db.user}")
     private String username;
-    @Value("${db.password}")
+    @Value("${dataSource.db.password}")
     private String password;
-    @Value("${db.maxPoolSize}")
+    @Value("${dataSource.db.maxPoolSize}")
     private int maxPoolSize;
 
     @Bean
