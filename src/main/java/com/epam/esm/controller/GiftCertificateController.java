@@ -34,6 +34,23 @@ public class GiftCertificateController {
         return giftCertificateService.findAll();
     }
 
+    @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public GiftCertificateDto updateById(@PathVariable("id") long id,
+                                      @RequestBody GiftCertificateDto giftCertificateDto) {
+        return giftCertificateService.updateById(id, giftCertificateDto);
+    }
+
+    @GetMapping("/with-tags")
+    @ResponseStatus(HttpStatus.OK)
+    public List<GiftCertificateDto> findCertificatesAllWithTags(
+            @RequestParam(name = "tag-name", required = false) String tagName,
+            @RequestParam(name = "part-info", required = false) String partInfo,
+            @RequestParam(name = "sort", required = false) List<String> sortColumns,
+            @RequestParam(name = "order", required = false) List<String> orderTypes) {
+        return giftCertificateService.findAllWithTags(tagName, partInfo, sortColumns, orderTypes);
+    }
+
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public GiftCertificate findById(@PathVariable("id") long id) {

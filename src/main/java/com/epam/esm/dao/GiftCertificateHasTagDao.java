@@ -11,4 +11,6 @@ public interface GiftCertificateHasTagDao {
     Optional<GiftCertificateHasTag> findById(long id);
     Optional<GiftCertificateHasTag> findByTagId(long id);
     Optional<GiftCertificateHasTag> findByGiftCertificateId(long id);
+    List<Long> findCertificateIdsByTagId(long tagId);
+    List<Long> findTagIdsByCertificateId(long certificateId);
 }

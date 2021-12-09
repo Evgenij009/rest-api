@@ -29,6 +29,10 @@ public class GiftCertificateHasTagDaoImpl implements GiftCertificateHasTagDao {
             "SELECT id, tag_id, gift_certificate_id FROM gift_certificate_has_tag WHERE tag_id=?";
     private static final String SQL_FIND_GIFT_CERTIFICATE_HAS_TAG_BY_GIFT_CERTIFICATE_ID =
             "SELECT id, tag_id, gift_certificate_id FROM gift_certificate_has_tag WHERE gift_certificate_id=?";
+    private static final String SQL_FIND_CERTIFICATE_IDS_BY_TAG_ID =
+            "SELECT id, tag_id, gift_certificate_id FROM gift_certificate_has_tag WHERE tag_id=?";
+    private static final String SQL_FIND_TAG_IDS_BY_GIFT_CERTIFICATE_ID =
+            "SELECT id, tag_id, gift_certificate_id FROM gift_certificate_has_tag WHERE gift_certificate_id=?";
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -61,5 +65,17 @@ public class GiftCertificateHasTagDaoImpl implements GiftCertificateHasTagDao {
     public Optional<GiftCertificateHasTag> findByGiftCertificateId(long id) {
         return jdbcTemplate.query(SQL_FIND_GIFT_CERTIFICATE_HAS_TAG_BY_GIFT_CERTIFICATE_ID, ROW_MAPPER, id)
                 .stream().findAny();
+    }
+
+    @Override
+    public List<Long> findCertificateIdsByTagId(long tagId) {
+        return jdbcTemplate.query(SQL_FIND_CERTIFICATE_IDS_BY_TAG_ID,
+                (rs, i) -> rs.getLong(ColumnName.GIFT_CERTIFICATE_ID), tagId);
+    }
+
+    @Override
+    public List<Long> findTagIdsByCertificateId(long certificateId) {
+        return jdbcTemplate.query(SQL_FIND_TAG_IDS_BY_GIFT_CERTIFICATE_ID,
+                (rs, i) -> rs.getLong(ColumnName.TAG_ID), certificateId);
     }
 }
