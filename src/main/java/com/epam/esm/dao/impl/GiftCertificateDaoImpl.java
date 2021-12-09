@@ -10,13 +10,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Component
 public class GiftCertificateDaoImpl implements GiftCertificateDao {
+    private static final SimpleDateFormat dateFormatISO8601 =  new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
     private static final RowMapper<GiftCertificate> ROW_MAPPER =
             ((rs, rowNum) -> GiftCertificate.builder()
                     .id(rs.getLong(ColumnName.ID))
@@ -24,8 +23,8 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
                     .description(rs.getString(ColumnName.DESCRIPTION))
                     .price(rs.getBigDecimal(ColumnName.PRICE))
                     .duration(rs.getInt(ColumnName.DURATION))
-                    .createDate(rs.getTimestamp(ColumnName.CREATE_DATE))
-                    .lastUpdateDate(rs.getTimestamp(ColumnName.LAST_UPDATE_DATE))
+                    .createDate(new Date(rs.getTimestamp(ColumnName.CREATE_DATE).getTime()))
+                    .lastUpdateDate(new Date(rs.getTimestamp(ColumnName.LAST_UPDATE_DATE).getTime()))
                     .build());
     private static final String SQL_FIND_ALL =
             "SELECT id, name, description, price, duration, create_date, last_update_date " +
@@ -45,6 +44,10 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     private static final String GAP = " ";
     private final JdbcTemplate jdbcTemplate;
     private final UtilBuilderQuery utilBuilderQuery;
+
+    static {
+        dateFormatISO8601.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
 
     @Autowired
     public GiftCertificateDaoImpl(JdbcTemplate jdbcTemplate, UtilBuilderQuery utilBuildQuery) {

@@ -1,6 +1,5 @@
 package com.epam.esm.service;
 
-import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.model.dto.GiftCertificateDto;
 import com.epam.esm.model.entity.GiftCertificate;
 
