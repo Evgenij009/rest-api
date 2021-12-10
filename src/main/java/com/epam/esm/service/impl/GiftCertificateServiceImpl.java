@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 @Component
@@ -50,18 +49,23 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public long create(GiftCertificateDto giftCertificateDto) {
         GiftCertificate giftCertificate = giftCertificateDto.getGiftCertificate();
         validateGiftCertificate(giftCertificate);
-        checkGiftCertificateForExist(giftCertificate.getName());
+        checkDuplicateGiftCertificateByName(giftCertificate.getName());
         giftCertificateDao.create(giftCertificate);
-        long certificateId = giftCertificateDao.findByName(giftCertificate.getName())
+        return processConnectCertificateWithTags(giftCertificateDto);
+    }
+
+    private long processConnectCertificateWithTags(GiftCertificateDto giftCertificateDto) {
+        long certificateId = giftCertificateDao.findByName(
+                giftCertificateDto.getGiftCertificate().getName())
                 .map(GiftCertificate::getId).orElse(-1L);
         if (!giftCertificateDto.getTags().isEmpty()) {
             validateTags(giftCertificateDto.getTags());
-            tieCertificateWithTags(certificateId, giftCertificateDto.getTags());
+            connectCertificateWithTags(certificateId, giftCertificateDto.getTags());
         }
         return certificateId;
     }
 
-    private void tieCertificateWithTags(long certificateId, Set<Tag> tags) {
+    private void connectCertificateWithTags(long certificateId, Set<Tag> tags) {
         for (Tag tag : tags) {
             Optional<Tag> tagOptional = tagDao.findByName(tag.getName());
             Tag tagSureExist = tagOptional.orElseGet(() -> createCertificateTag(tag));
@@ -98,9 +102,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public GiftCertificateDto updateById(long id, GiftCertificateDto giftCertificateDto) {
         GiftCertificate giftCertificate = giftCertificateDto.getGiftCertificate();
         if (giftCertificate != null) {
-            if (!giftCertificateDao.findById(id).isPresent()) {
-                throw new NotFoundEntityException("certificate.not.found");
-            }
+            checkExistGiftCertificateById(id);
             giftCertificateDao.updateById(id, findUpdateInfo(giftCertificate));
         }
         Set<Tag> tags = giftCertificateDto.getTags();
@@ -141,7 +143,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private Map<String, Object> findUpdateInfo(GiftCertificate giftCertificate) {
         Map<String, Object> updateInfo = new HashMap<>();
-        carefullyValidateGiftCertificateValues(giftCertificate);
+        ((GiftCertificateValidator)giftCertificateValidator)
+                .isValidateCarefullyGiftCertificateValues(giftCertificate);
         updateInfo.put(ColumnName.NAME, giftCertificate.getName());
         updateInfo.put(ColumnName.DESCRIPTION, giftCertificate.getDescription());
         updateInfo.put(ColumnName.PRICE, giftCertificate.getPrice());
@@ -161,28 +164,52 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     @Transactional
-    public List<GiftCertificateDto> findAllWithTags(String tagName, String partInfo,
-                                                    List<String> sortColumns, List<String> orderTypes) {
+    public List<GiftCertificateDto> findAllWithTags(String tagName,
+                                                    String partInfo,
+                                                    List<String> sortColumns,
+                                                    List<String> orderTypes) {
         List<GiftCertificateDto> giftCertificateDtoList = new ArrayList<>();
         List<GiftCertificate> giftCertificates;
-        if (sortColumns != null) {
-            SortParamsContext sortParamsContext = new SortParamsContext(sortColumns, orderTypes);
-            validateSortParamsContext(sortParamsContext);
-            if (tagName != null || partInfo != null) {
-                giftCertificates = findGiftCertificatesWithSortingAndFiltering(tagName,
-                        partInfo, sortParamsContext);
-            } else {
-                giftCertificates = giftCertificateDao.findAllWithSorting(sortParamsContext);
-            }
-        } else if (tagName != null || partInfo != null) {
+
+        if (sortColumns != null && !sortColumns.isEmpty()) {
+            giftCertificates = sortGiftCertificates(tagName, partInfo, sortColumns, orderTypes);
+        } else if (isValidRequestAttributeLine(tagName) || isValidRequestAttributeLine(partInfo)) {
             giftCertificates = findCertificatesWithFiltering(tagName, partInfo);
         } else {
             giftCertificates = giftCertificateDao.findAll();
         }
-        for (GiftCertificate giftCertificate : giftCertificates) {
-            giftCertificateDtoList.add(buildGiftCertificateDto(giftCertificate));
-        }
+
+        giftCertificates.forEach(g -> {
+            giftCertificateDtoList.add(buildGiftCertificateDto(g));
+        });
+
         return giftCertificateDtoList;
+    }
+
+    private List<GiftCertificate> sortGiftCertificates(String tagName,
+                                                       String partInfo,
+                                                       List<String> sortColumns,
+                                                       List<String> orderTypes) {
+        List<GiftCertificate> giftCertificates;
+        SortParamsContext sortParamsContext = new SortParamsContext(sortColumns, orderTypes);
+        validateSortParamsContext(sortParamsContext);
+
+        if (isValidRequestAttributeLine(tagName) || isValidRequestAttributeLine(partInfo)) {
+            giftCertificates = findGiftCertificatesWithSortingAndFiltering(
+                    tagName, partInfo, sortParamsContext);
+        } else {
+            giftCertificates = giftCertificateDao.findAllWithSorting(sortParamsContext);
+        }
+
+        return giftCertificates;
+    }
+
+    private boolean isValidRequestAttributeLine(String line) {
+        if (line == null) {
+            return false;
+        }
+        line = line.trim();
+        return !line.isEmpty();
     }
 
     private List<GiftCertificate> findCertificatesWithFiltering(String tagName, String partInfo) {
@@ -226,36 +253,21 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         }
     }
 
-    private void checkGiftCertificateForExist(String name) {
+    private void checkDuplicateGiftCertificateByName(String name) {
         if (giftCertificateDao.findByName(name).isPresent()) {
             throw new DuplicateEntityException("certificate.already.exist");
+        }
+    }
+
+    private void checkExistGiftCertificateById(long id) {
+        if (giftCertificateDao.findById(id).isPresent()) {
+            throw new NotFoundEntityException("certificate.not.found");
         }
     }
 
     private void validateSortParamsContext(SortParamsContext sortParamsContext) {
         if (!sortParamsContextValidator.isValid(sortParamsContext)) {
             throw new InvalidEntityException("sort.params.invalid");
-        }
-    }
-
-    private void carefullyValidateGiftCertificateValues(GiftCertificate giftCertificate) {
-        GiftCertificateValidator giftCertificateValidator =
-                (GiftCertificateValidator) this.giftCertificateValidator;
-        String name = giftCertificate.getName();
-        if (name != null && !giftCertificateValidator.isNameValid(name)) {
-            throw new InvalidEntityException("validation.name.invalid");
-        }
-        String description = giftCertificate.getDescription();
-        if (description != null && !giftCertificateValidator.isDescriptionValid(description)) {
-            throw new InvalidEntityException("validation.description.invalid");
-        }
-        BigDecimal price = giftCertificate.getPrice();
-        if (price != null && !giftCertificateValidator.isPriceValid(price)) {
-            throw new InvalidEntityException("validation.price.invalid");
-        }
-        int duration = giftCertificate.getDuration();
-        if (duration != 0 && !giftCertificateValidator.isDurationValid(duration)) {
-            throw new InvalidEntityException("validation.duration.invalid");
         }
     }
 }

@@ -15,7 +15,8 @@ import java.util.*;
 
 @Component
 public class GiftCertificateDaoImpl implements GiftCertificateDao {
-    private static final SimpleDateFormat dateFormatISO8601 =  new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+    private static final SimpleDateFormat dateFormatISO8601 =
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
     private static final RowMapper<GiftCertificate> ROW_MAPPER =
             ((rs, rowNum) -> GiftCertificate.builder()
                     .id(rs.getLong(ColumnName.ID))
@@ -97,6 +98,8 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
             }
             queryBuilder.append(SQL_PART_QUERY_LIKE_NAME_AND_DESCRIPTION);
             String regexPartInfo = utilBuilderQuery.buildRegexValue(partInfo);
+            //add two identical (regexPartInfo) ones because in the request
+            // to the database it will be like "name LIKE ? OR description LIKE ?".
             values.add(regexPartInfo);
             values.add(regexPartInfo);
         }

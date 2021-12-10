@@ -17,7 +17,6 @@ create table gift_certificates
 
 create table gift_certificate_has_tag
 (
-    id             BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     gift_certificate_id BIGINT UNSIGNED NOT NULL,
     tag_id         BIGINT UNSIGNED NOT NULL,
     FOREIGN KEY (gift_certificate_id) REFERENCES gift_certificates (id)

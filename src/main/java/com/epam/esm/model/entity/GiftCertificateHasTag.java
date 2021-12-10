@@ -12,5 +12,4 @@ import lombok.NoArgsConstructor;
 public class GiftCertificateHasTag {
     private long giftCertificateId;
     private long tagId;
-    private long id;
 }
