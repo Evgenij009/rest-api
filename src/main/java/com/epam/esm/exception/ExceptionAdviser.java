@@ -42,10 +42,7 @@ public class ExceptionAdviser {
     public ResponseEntity<ExceptionInfo> handleArgumentNotValidException(
             MethodArgumentNotValidException e, Locale locale) {
         FieldError fieldError = e.getBindingResult().getFieldError();
-        String message = e.getMessage();
-        if (fieldError != null) {
-            message = fieldError.getDefaultMessage();
-        }
+        String message = (fieldError != null) ? fieldError.getDefaultMessage() : e.getMessage();
         return buildErrorResponse(resolveResourceBundle(message, locale),
                 40000, HttpStatus.BAD_REQUEST);
     }

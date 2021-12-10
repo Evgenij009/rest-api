@@ -1,5 +1,6 @@
 package com.epam.esm.validator;
 
+import com.epam.esm.exception.InvalidEntityException;
 import com.epam.esm.model.entity.GiftCertificate;
 import org.springframework.stereotype.Component;
 
@@ -43,5 +44,24 @@ public class GiftCertificateValidator implements Validator<GiftCertificate> {
 
     public boolean isDurationValid(int duration) {
         return duration >= DURATION_MIN_VALUE;
+    }
+
+    public void isValidateCarefullyGiftCertificateValues(GiftCertificate giftCertificate) {
+        String name = giftCertificate.getName();
+        if (name != null && !isNameValid(name)) {
+            throw new InvalidEntityException("validation.name.invalid");
+        }
+        String description = giftCertificate.getDescription();
+        if (description != null && !isDescriptionValid(description)) {
+            throw new InvalidEntityException("validation.description.invalid");
+        }
+        BigDecimal price = giftCertificate.getPrice();
+        if (price != null && !isPriceValid(price)) {
+            throw new InvalidEntityException("validation.price.invalid");
+        }
+        int duration = giftCertificate.getDuration();
+        if (duration != 0 && !isDurationValid(duration)) {
+            throw new InvalidEntityException("validation.duration.invalid");
+        }
     }
 }
