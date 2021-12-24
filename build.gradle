@@ -15,6 +15,13 @@ dependencies {
     implementation 'org.springframework:spring-context:5.3.13'
     implementation 'org.springframework:spring-tx:5.3.13'
     implementation 'org.springframework.boot:spring-boot-starter-web:2.6.1'
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas:2.5.2'
+
+    implementation 'org.hibernate:hibernate-core:5.4.32.Final'
+    // https://mvnrepository.com/artifact/javax.validation/validation-api
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+    // https://mvnrepository.com/artifact/org.mapstruct/mapstruct
+    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
 
     implementation 'mysql:mysql-connector-java:8.0.27'
     implementation 'com.zaxxer:HikariCP:4.0.3'

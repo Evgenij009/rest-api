@@ -2,80 +2,79 @@ package com.epam.esm.util;
 
 import org.springframework.stereotype.Component;
 
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Optional;
 
 @Component
 public class UtilBuilderQuery {
-    private static final Pattern UPPER_CASE_SYMBOL_PATTERN = Pattern.compile("[A-Z]");
-    private static final String COMMA_WITH_GAP = ", ";
-    private static final String GAP = " ";
-    private static final String EQUALS_WITH_QUESTION = "=?";
-    private static final String ORDER_BY = " ORDER BY ";
     private static final String ASC = "ASC";
-    private static final String QUESTION = "?";
-    private static final String BRACKET_WITH_GAP = ") ";
-    private static final String IN_WITH_BRACKET = " IN(";
     private static final String ANY_LINE_REGEX = "%";
 
-    public String buildSortingQuery(SortParamsContext sortParamsContext) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(ORDER_BY);
-        List<String> sortColumns = convertToDatabaseFields(sortParamsContext.getSortColumns());
-        List<String> orderTypes = sortParamsContext.getOrderTypes();
-        for (int i = 0; i < sortColumns.size(); ++i) {
-            if (i != 0) {
-                stringBuilder.append(COMMA_WITH_GAP);
-            }
-            stringBuilder.append(sortColumns.get(i)).append(GAP);
-            String typeOrdering = i < orderTypes.size() ? orderTypes.get(i) : ASC;
-            stringBuilder.append(typeOrdering);
-        }
-        return stringBuilder.toString();
+    private final CriteriaBuilder builder;
+
+    public UtilBuilderQuery(CriteriaBuilder builder) {
+        this.builder = builder;
     }
 
-    private List<String> convertToDatabaseFields(List<String> fields) {
-        List<String> databaseFields = new ArrayList<>();
-        for (String fieldName : fields) {
-            Matcher matcher = UPPER_CASE_SYMBOL_PATTERN.matcher(fieldName);
-            while (matcher.find()) {
-                String matchedSymbol = matcher.group();
-                fieldName = fieldName.replaceAll(matchedSymbol, "_" + matchedSymbol.toLowerCase());
-            }
-            databaseFields.add(fieldName);
+    @SuppressWarnings("unchecked")
+    public <T> Optional<T> getOptionalQueryResult(Query query) {
+        try {
+            T entity = (T) query.getSingleResult();
+            return Optional.of(entity);
+        } catch (NoResultException e) {
+            return Optional.empty();
         }
-        return databaseFields;
     }
 
-    public String buildUpdateAttributesQuery(Set<String> attributes) {
-        StringBuilder queryBuilder = new StringBuilder();
-        boolean isFirstElement = true;
-       for (String attribute : attributes) {
-           if (!isFirstElement) {
-               queryBuilder.append(COMMA_WITH_GAP);
-           } else {
-               isFirstElement = false;
-           }
-           queryBuilder.append(attribute);
-           queryBuilder.append(EQUALS_WITH_QUESTION);
-       }
-       return queryBuilder.toString();
+    public <T> Predicate buildOrEqualPredicates(Path<T> root, String columnName, List<?> values) {
+        int counter = 0;
+        Predicate predicate = null;
+        for (Object value : values) {
+            Predicate currentPredicate = builder.equal(root.get(columnName), value);
+            if (counter++ == 0) {
+                predicate = currentPredicate;
+            } else {
+                predicate = builder.or(predicate, currentPredicate);
+            }
+        }
+
+        return predicate;
     }
 
-    public String buildFilteringQuery(String columnName, int size) {
-        StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append(columnName).append(IN_WITH_BRACKET);
-        for (int i = 0; i < size; ++i) {
-            if (i != 0) {
-                queryBuilder.append(COMMA_WITH_GAP);
-            }
-            queryBuilder.append(QUESTION);
+    public Predicate buildAndPredicates(List<Predicate> predicates) {
+        if (predicates == null || predicates.isEmpty()) {
+            return null;
         }
-        queryBuilder.append(BRACKET_WITH_GAP);
-        return queryBuilder.toString();
+        Predicate resultPredicate = predicates.get(0);
+        for (int i = 1; i < predicates.size(); ++i) {
+            resultPredicate = builder.and(resultPredicate, predicates.get(i));
+        }
+        return resultPredicate;
+    }
+
+    public <T> List<Order> buildOrderList(Root<T> root, SortParamsContext sortParamsContext) {
+        List<Order> orderList = new ArrayList<>();
+        for (int i = 0; i < sortParamsContext.getSortColumns().size(); ++i) {
+            String column = sortParamsContext.getSortColumns().get(i);
+            String orderType;
+            if (sortParamsContext.getOrderTypes().size() > i) {
+                orderType = sortParamsContext.getOrderTypes().get(i);
+            } else {
+                orderType = ASC;
+            }
+            Order order;
+            if (orderType.equalsIgnoreCase(ASC)) {
+                order = builder.asc(root.get(column));
+            } else {
+                order = builder.desc(root.get(column));
+            }
+            orderList.add(order);
+        }
+        return orderList;
     }
 
     public String buildRegexValue(String value) {

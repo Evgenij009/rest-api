@@ -5,13 +5,17 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "tags")
-public class Tag extends BaseEntity {
+@Table(name = "roles")
+public class Role extends BaseEntity {
 
-    @Column(length = 64, nullable = false)
+    @Column(name = "name")
     private String name;
 
-    public Tag() {}
+    public Role(String name) {
+        this.name = name;
+    }
+
+    public Role() {}
 
     public String getName() {
         return name;
@@ -26,9 +30,9 @@ public class Tag extends BaseEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Tag tag = (Tag) o;
+        Role role = (Role) o;
 
-        return name != null ? name.equals(tag.name) : tag.name == null;
+        return name != null ? name.equals(role.name) : role.name == null;
     }
 
     @Override
@@ -38,7 +42,7 @@ public class Tag extends BaseEntity {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Tag{");
+        final StringBuilder sb = new StringBuilder("Role{");
         sb.append("name='").append(name).append('\'');
         sb.append('}');
         return sb.toString();
