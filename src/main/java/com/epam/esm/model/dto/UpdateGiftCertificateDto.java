@@ -4,27 +4,23 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.hateoas.RepresentationModel;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> {
+public class UpdateGiftCertificateDto extends RepresentationModel<UpdateGiftCertificateDto> {
 
     private long id;
-    @Size(min = 1, max = 64, message = "Name length should be >= 1 and  <= 128")
-    @NotEmpty(message = "Name should not be empty")
+    @Size(max = 64, message = "Name length should be >= 1 and  <= 128")
     private String name;
-    @Size(min = 1, max = 100, message = "Description length should be >= 1 and <= 256")
-    @NotEmpty(message = "Description should not be empty")
+    @Size(max = 100, message = "Description length should be >= 1 and <= 256")
     private String description;
-    @DecimalMin(value = "1", message = "Price should be >= 1")
-    @DecimalMax(value = "99999999.99", message = "Price should be <= 99999999.99")
-    @NotNull
+    @Min(0)
     private BigDecimal price;
-    @Min(value = 1, message = "Duration should be >= 1")
-    @NotNull
+    @Min(0)
     private int duration;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
@@ -34,23 +30,14 @@ public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> 
     private ZonedDateTime lastUpdateDate;
     private List<TagDto> tagDtoList;
 
-    public GiftCertificateDto() {
-    }
+    public UpdateGiftCertificateDto() {}
 
-    public GiftCertificateDto(String name, String description, BigDecimal price, int duration) {
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.duration = duration;
-    }
-
-    public GiftCertificateDto(
+    public UpdateGiftCertificateDto(
             long id,
-            @Size(min = 1, max = 64, message = "Name length should be >= 1 and  <= 128")
-            @NotEmpty(message = "Name should not be empty") String name,
-            @Size(min = 1, max = 100, message = "Description length should be >= 1 and <= 256") String description,
-            @Min(value = 1, message = "Price should be >= 1") BigDecimal price,
-            @Min(value = 1, message = "Duration should be >= 1") int duration,
+            @Size(max = 64, message = "Name length should be <= 128") String name,
+            @Size(max = 100, message = "Description length should be >= 1 and <= 256") String description,
+            @Min(0) BigDecimal price,
+            @Min(0) int duration,
             ZonedDateTime createDate, ZonedDateTime lastUpdateDate, List<TagDto> tagDtoList
     ) {
         this.id = id;
@@ -140,7 +127,7 @@ public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> 
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        GiftCertificateDto that = (GiftCertificateDto) o;
+        UpdateGiftCertificateDto that = (UpdateGiftCertificateDto) o;
 
         if (id != that.id) return false;
         if (duration != that.duration) return false;

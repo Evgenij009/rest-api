@@ -3,7 +3,7 @@ package com.epam.esm.service;
 import com.epam.esm.exception.InvalidEntityException;
 import com.epam.esm.exception.NotFoundEntityException;
 import com.epam.esm.model.dto.GiftCertificateDto;
-import com.epam.esm.model.entity.GiftCertificate;
+import com.epam.esm.model.dto.UpdateGiftCertificateDto;
 
 import java.util.List;
 
@@ -15,17 +15,10 @@ public interface GiftCertificateService {
      * Creates new Certificate with optional tags.
      *
      * @param giftCertificateDto CertificateDto to create Certificate/Tags
-     * @return id location of new Certificate
+     * @return GiftCertificateDto
      * @throws InvalidEntityException when Certificate or Tag data is invalid
      */
-    long create(GiftCertificateDto giftCertificateDto);
-
-    /**
-     * Find all Certificates.
-     *
-     * @return List of all Certificates
-     */
-    List<GiftCertificate> findAll();
+    GiftCertificateDto create(GiftCertificateDto giftCertificateDto);
 
     /**
      * Find Certificate by id.
@@ -34,19 +27,19 @@ public interface GiftCertificateService {
      * @return founded Certificate
      * @throws NotFoundEntityException when Certificate is not found
      */
-    GiftCertificate findById(long id);
+    GiftCertificateDto findById(long id);
 
     /**
      * Updates Certificate by id
      * with updating only fields that are passed
      *
      * @param id              Certificate id to search
-     * @param giftCertificateDto update information with Certificate fields or Tags
+     * @param updateGiftCertificateDto update information with Certificate fields or Tags
      * @return updated Certificate with Tags
      * @throws NotFoundEntityException when Certificate is not found
      * @throws InvalidEntityException when update info of Certificate fields is invalid
      */
-    GiftCertificateDto updateById(long id, GiftCertificateDto giftCertificateDto);
+    GiftCertificateDto updateById(long id, UpdateGiftCertificateDto updateGiftCertificateDto) throws NotFoundEntityException;
 
     /**
      * Deletes Certificate by id.
@@ -59,7 +52,7 @@ public interface GiftCertificateService {
     /**
      * Find all Certificates with Tags and optional sorting/filtering
      *
-     * @param tagName     Tag name to filter Certificates
+     * @param tagNames     Tag name to filter Certificates
      * @param partInfo    part info of name/desc to filter Certificates
      * @param sortColumns columns to sort of Certificates
      * @param orderTypes  sort order types
@@ -67,5 +60,10 @@ public interface GiftCertificateService {
      * @throws NotFoundEntityException when Tag is not found
      * @throws InvalidEntityException when sort parameters are invalid
      */
-    List<GiftCertificateDto> findAllWithTags(String tagName, String partInfo, List<String> sortColumns, List<String> orderTypes);
+    List<GiftCertificateDto> findBySearchParams(List<String> tagNames,
+                                                String partInfo,
+                                                List<String> sortColumns,
+                                                List<String> orderTypes,
+                                                int page, int size);
+    GiftCertificateDto replaceById(long id, GiftCertificateDto giftCertificateDto) throws NotFoundEntityException;
 }

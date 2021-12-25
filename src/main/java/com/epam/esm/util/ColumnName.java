@@ -10,4 +10,6 @@ public final class ColumnName {
     public static final String LAST_UPDATE_DATE = "last_update_date";
     public static final String GIFT_CERTIFICATE_ID = "gift_certificate_id";
     public static final String TAG_ID = "tag_id";
+    public static final String USER_ID = "userId";
+    public static final String LOGIN = "login";
 }

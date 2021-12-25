@@ -1,9 +1,18 @@
 plugins {
+    id "com.diffplug.eclipse.apt" version "3.26.0"
     id 'java'
 }
 
+compileJava {
+    options.compilerArgs += [
+            '-Amapstruct.suppressGeneratorTimestamp=true',
+            '-Amapstruct.suppressGeneratorVersionInfoComment=true',
+            '-Amapstruct.verbose=true'
+    ]
+}
+
 group = "com.epam"
-version = '0.0.1-SNAPSHOT'
+version = '1.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
 repositories {
@@ -11,32 +20,38 @@ repositories {
 }
 
 dependencies {
+//    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+//    annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
+
     implementation 'org.springframework:spring-jdbc:5.3.13'
-    implementation 'org.springframework:spring-context:5.3.13'
+    implementation 'org.springframework:spring-context:5.3.14'
     implementation 'org.springframework:spring-tx:5.3.13'
     implementation 'org.springframework.boot:spring-boot-starter-web:2.6.1'
-    implementation 'org.springframework.boot:spring-boot-starter-hateoas:2.5.2'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure:2.5.2'
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas:2.6.1'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.6.1'
 
     implementation 'org.hibernate:hibernate-core:5.4.32.Final'
-    // https://mvnrepository.com/artifact/javax.validation/validation-api
+
     implementation 'javax.validation:validation-api:2.0.1.Final'
-    // https://mvnrepository.com/artifact/org.mapstruct/mapstruct
-    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+    implementation 'org.hibernate.validator:hibernate-validator:6.1.0.Final'
+//    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+//    implementation 'org.mapstruct:mapstruct-processor:1.4.2.Final'
 
     implementation 'mysql:mysql-connector-java:8.0.27'
-    implementation 'com.zaxxer:HikariCP:4.0.3'
+//    implementation 'com.zaxxer:HikariCP:4.0.3'
 
-    compileOnly 'org.projectlombok:lombok:1.18.22'
-    annotationProcessor 'org.projectlombok:lombok:1.18.22'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
-    testCompileOnly 'org.projectlombok:lombok:1.18.22'
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 
     testImplementation 'org.mockito:mockito-all:1.10.19'
-    testImplementation 'org.springframework:spring-test:5.3.5'
+    testImplementation 'org.springframework:spring-test:5.3.14'
     testImplementation 'com.h2database:h2:1.4.187'
+    implementation "org.mapstruct:mapstruct:1.4.2.Final"
+    annotationProcessor "org.mapstruct:mapstruct-processor:1.4.2.Final"
+
+    // If you are using mapstruct in test code
+    testAnnotationProcessor "org.mapstruct:mapstruct-processor:1.4.2.Final"
 }
 
 test {

@@ -19,8 +19,8 @@ import java.util.List;
 public class OrderRepositoryImpl extends AbstractRepository<Order> implements OrderRepository {
 
     @Autowired
-    public OrderRepositoryImpl(EntityManager entityManager, Class<Order> entityClass) {
-        super(entityManager, entityClass);
+    public OrderRepositoryImpl(EntityManager entityManager) {
+        super(entityManager, Order.class);
     }
 
     @Override

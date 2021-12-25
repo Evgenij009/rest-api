@@ -1,7 +1,5 @@
 package com.epam.esm.util;
 
-import org.springframework.stereotype.Component;
-
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.criteria.*;
@@ -9,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Component
 public class UtilBuilderQuery {
     private static final String ASC = "ASC";
     private static final String ANY_LINE_REGEX = "%";

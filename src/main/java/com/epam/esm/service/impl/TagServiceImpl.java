@@ -1,74 +1,70 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.dao.TagDao;
 import com.epam.esm.exception.DuplicateEntityException;
-import com.epam.esm.exception.InvalidEntityException;
 import com.epam.esm.exception.NotFoundEntityException;
+import com.epam.esm.mapper.TagMapper;
+import com.epam.esm.model.dto.TagDto;
 import com.epam.esm.model.entity.Tag;
+import com.epam.esm.repository.TagRepository;
+import com.epam.esm.repository.UserRepository;
 import com.epam.esm.service.TagService;
-import com.epam.esm.validator.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@Service
 public class TagServiceImpl implements TagService {
-    private final TagDao tagDao;
-    private final Validator<Tag> tagValidator;
+    private static final String TAG_NOT_FOUND = "tag.not.found";
+    private final TagRepository tagRepository;
+    private final UserRepository userRepository;
+    private final TagMapper tagMapper;
 
     @Autowired
-    public TagServiceImpl(TagDao tagDao, Validator<Tag> tagValidator) {
-        this.tagDao = tagDao;
-        this.tagValidator = tagValidator;
+    public TagServiceImpl(TagRepository tagRepository,
+                          UserRepository userRepository,
+                          TagMapper tagMapper) {
+        this.tagRepository = tagRepository;
+        this.userRepository = userRepository;
+        this.tagMapper = tagMapper;
     }
 
     @Override
-    @Transactional
-    public long create(Tag tag) {
-        validateTag(tag);
-        validateForExistTag(tag);
-        tagDao.create(tag);
-        Optional<Tag> optionalTag = tagDao.findByName(tag.getName());
-        return optionalTag.map(Tag::getId).orElse(-1L);
-    }
-
-    @Override
-    public List<Tag> findAll() {
-        return tagDao.findAll();
-    }
-
-    @Override
-    @Transactional
-    public Tag findById(long id) {
-        Optional<Tag> optionalTag = tagDao.findById(id);
-        if (!optionalTag.isPresent()) {
-            throw new NotFoundEntityException("tag.not.found");
+    @Transactional(rollbackFor = DuplicateEntityException.class)
+    public TagDto create(TagDto tagDto) throws DuplicateEntityException{
+        String tagName = tagDto.getName();
+        boolean isTagExist = tagRepository.findByName(tagName).isPresent();
+        if (isTagExist) {
+            throw new DuplicateEntityException("tag.exist");
         }
-        return optionalTag.get();
+        Tag tag = tagMapper.mapToEntity(tagDto);
+        return tagMapper.mapToDto(tagRepository.create(tag));
+    }
+
+    @Override
+    public List<TagDto> findAll(int page, int size) {
+        return tagMapper.mapListToDto(tagRepository.findAll(page, size));
+    }
+
+    @Override
+    @Transactional
+    public TagDto findById(long id) throws NotFoundEntityException {
+        Optional<Tag> optionalTag = tagRepository.findById(id);
+        if (!optionalTag.isPresent()) {
+            throw new NotFoundEntityException(TAG_NOT_FOUND);
+        }
+        return tagMapper.mapToDto(optionalTag.get());
     }
 
     @Override
     @Transactional
     public void deleteById(long id) {
-        Optional<Tag> optionalTag = tagDao.findById(id);
+        Optional<Tag> optionalTag = tagRepository.findById(id);
         if (!optionalTag.isPresent()) {
-            throw new NotFoundEntityException("tag.not.found");
+            throw new NotFoundEntityException(TAG_NOT_FOUND);
         }
-        tagDao.deleteById(id);
-    }
-
-    private void validateForExistTag(Tag tag) {
-        if (tagDao.findByName(tag.getName()).isPresent()) {
-            throw new DuplicateEntityException("tag.already.exist");
-        }
-    }
-
-    private void validateTag(Tag tag) {
-        if (!tagValidator.isValid(tag)) {
-            throw new InvalidEntityException("tag.invalid");
-        }
+        tagRepository.deleteById(id);
     }
 }
