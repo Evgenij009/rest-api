@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -63,16 +62,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto findById(long id) {
-       GiftCertificate giftCertificate = giftCertificateRepository.findById(id)
-               .orElseThrow(() -> new NoSuchElementException(CERTIFICATE_NOT_FOUND));
+       GiftCertificate giftCertificate = checkExistGiftCertificateById(id);
        return giftCertificateMapper.mapToDto(giftCertificate);
     }
 
     @Override
     @Transactional(rollbackFor = NotFoundEntityException.class)
     public GiftCertificateDto updateById(long id, UpdateGiftCertificateDto updateGiftCertificateDto) {
-        GiftCertificate giftCertificate = giftCertificateRepository.findById(id)
-                .orElseThrow(() -> new NotFoundEntityException(CERTIFICATE_NOT_FOUND));
+        GiftCertificate giftCertificate = checkExistGiftCertificateById(id);
         GiftCertificate updateGiftCertificate = updateGiftCertificateMapper.mapToEntity(updateGiftCertificateDto);
         updateFields(giftCertificate, updateGiftCertificate);
         if (giftCertificate.getTagList() != null) {
@@ -85,8 +82,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public void deleteById(long id) {
-        giftCertificateRepository.findById(id)
-                .orElseThrow(() -> new NotFoundEntityException(CERTIFICATE_NOT_FOUND));
+        checkExistGiftCertificateById(id);
         giftCertificateRepository.deleteById(id);
     }
 
@@ -112,8 +108,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional(rollbackFor = NotFoundEntityException.class)
     public GiftCertificateDto replaceById(long id, GiftCertificateDto giftCertificateDto) throws NotFoundEntityException {
-        GiftCertificate giftCertificate = giftCertificateRepository.findById(id)
-                .orElseThrow(() -> new NotFoundEntityException(CERTIFICATE_NOT_FOUND));
+        GiftCertificate giftCertificate = checkExistGiftCertificateById(id);
         GiftCertificate replaceGiftCertificate = giftCertificateMapper.mapToEntity(giftCertificateDto);
         updateFields(giftCertificate, replaceGiftCertificate);
         if (giftCertificate.getTagList() != null) {
@@ -150,5 +145,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             addedTags.add(savedTag);
         }
         return addedTags;
+    }
+
+    private GiftCertificate checkExistGiftCertificateById(long id) {
+        return giftCertificateRepository.findById(id)
+                .orElseThrow(() -> new NotFoundEntityException(CERTIFICATE_NOT_FOUND));
     }
 }

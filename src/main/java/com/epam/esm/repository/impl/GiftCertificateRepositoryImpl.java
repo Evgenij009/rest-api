@@ -47,16 +47,17 @@ public class GiftCertificateRepositoryImpl extends AbstractRepository<GiftCertif
         }
 
         if (sortParamsContext != null) {
-            List<Order>orderList = utilBuilderQuery.buildOrderList(root, sortParamsContext);
+            List<Order> orderList = utilBuilderQuery.buildOrderList(root, sortParamsContext);
             if (!orderList.isEmpty()) {
                 query.orderBy(orderList);
             }
         }
 
-        return entityManager.createQuery(query)
+        List<GiftCertificate> giftCertificateList = entityManager.createQuery(query)
                 .setFirstResult(page * size)
                 .setMaxResults(size)
                 .getResultList();
+        return giftCertificateList;
     }
 
     private Predicate buildPredicateByPartInfo(Root<GiftCertificate> root, String partInfo) {

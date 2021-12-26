@@ -32,7 +32,7 @@ public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private ZonedDateTime lastUpdateDate;
-    private List<TagDto> tagDtoList;
+    private List<TagDto> tagList;
 
     public GiftCertificateDto() {
     }
@@ -60,7 +60,7 @@ public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> 
         this.duration = duration;
         this.createDate = createDate;
         this.lastUpdateDate = lastUpdateDate;
-        this.tagDtoList = tagDtoList;
+        this.tagList = tagDtoList;
     }
 
     public long getId() {
@@ -119,19 +119,19 @@ public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> 
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public List<TagDto> getTagDtoList() {
-        return tagDtoList;
+    public List<TagDto> getTagList() {
+        return tagList;
     }
 
-    public void setTagDtoList(List<TagDto> tagDtoList) {
-        this.tagDtoList = tagDtoList;
+    public void setTagList(List<TagDto> tagList) {
+        this.tagList = tagList;
     }
 
     public void addTag(TagDto tagDto) {
-        if (tagDtoList == null) {
-            tagDtoList = new ArrayList<>();
+        if (tagList == null) {
+            tagList = new ArrayList<>();
         }
-        tagDtoList.add(tagDto);
+        tagList.add(tagDto);
     }
 
     @Override
@@ -150,7 +150,7 @@ public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> 
         if (createDate != null ? !createDate.equals(that.createDate) : that.createDate != null) return false;
         if (lastUpdateDate != null ? !lastUpdateDate.equals(that.lastUpdateDate) : that.lastUpdateDate != null)
             return false;
-        return tagDtoList != null ? tagDtoList.equals(that.tagDtoList) : that.tagDtoList == null;
+        return tagList != null ? tagList.equals(that.tagList) : that.tagList == null;
     }
 
     @Override
@@ -163,7 +163,7 @@ public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> 
         result = 31 * result + duration;
         result = 31 * result + (createDate != null ? createDate.hashCode() : 0);
         result = 31 * result + (lastUpdateDate != null ? lastUpdateDate.hashCode() : 0);
-        result = 31 * result + (tagDtoList != null ? tagDtoList.hashCode() : 0);
+        result = 31 * result + (tagList != null ? tagList.hashCode() : 0);
         return result;
     }
 
@@ -177,7 +177,7 @@ public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> 
         sb.append(", duration=").append(duration);
         sb.append(", createDate=").append(createDate);
         sb.append(", lastUpdateDate=").append(lastUpdateDate);
-        sb.append(", tagDtoList=").append(tagDtoList);
+        sb.append(", tagDtoList=").append(tagList);
         sb.append('}');
         return sb.toString();
     }
