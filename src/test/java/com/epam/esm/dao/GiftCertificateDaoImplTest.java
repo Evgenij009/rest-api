@@ -3,7 +3,6 @@ package com.epam.esm.dao;
 import com.epam.esm.config.TestJdbcConfig;
 import com.epam.esm.dao.impl.GiftCertificateDaoImpl;
 import com.epam.esm.model.entity.GiftCertificate;
-import com.epam.esm.model.entity.GiftCertificateHasTag;
 import com.epam.esm.model.entity.Tag;
 import com.epam.esm.util.SortParamsContext;
 import org.junit.jupiter.api.Test;
