@@ -4,6 +4,7 @@ import javax.persistence.*;
 import javax.validation.constraints.DecimalMin;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "orders")
@@ -67,14 +68,11 @@ public class Order extends BaseEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Order order = (Order) o;
-
-        if (user != null ? !user.equals(order.user) : order.user != null) return false;
-        if (giftCertificate != null ? !giftCertificate.equals(order.giftCertificate) : order.giftCertificate != null)
-            return false;
-        if (orderDate != null ? !orderDate.equals(order.orderDate) : order.orderDate != null) return false;
-        return cost != null ? cost.equals(order.cost) : order.cost == null;
+        return Objects.equals(user, order.user)
+                && Objects.equals(giftCertificate, order.giftCertificate)
+                && Objects.equals(orderDate, order.orderDate)
+                && Objects.equals(cost, order.cost);
     }
 
     @Override

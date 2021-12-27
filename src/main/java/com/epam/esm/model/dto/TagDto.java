@@ -4,6 +4,7 @@ import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import java.util.Objects;
 
 public class TagDto extends RepresentationModel<TagDto> {
 
@@ -12,6 +13,10 @@ public class TagDto extends RepresentationModel<TagDto> {
     @NotEmpty(message = "Name should not be empty")
     private String name;
 
+    /**
+     * Instantiates a new Tag dto.
+     * Used mapper
+     */
     public TagDto() {}
 
     public TagDto(long id, String name) {
@@ -40,11 +45,8 @@ public class TagDto extends RepresentationModel<TagDto> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-
         TagDto tagDto = (TagDto) o;
-
-        if (id != tagDto.id) return false;
-        return name != null ? name.equals(tagDto.name) : tagDto.name == null;
+        return id == tagDto.id && Objects.equals(name, tagDto.name);
     }
 
     @Override

@@ -9,14 +9,15 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> {
 
     private long id;
-    @Size(min = 1, max = 64, message = "Name length should be >= 1 and  <= 128")
+    @Size(min = 1, max = 128, message = "Name length should be >= 1 and <= 128")
     @NotEmpty(message = "Name should not be empty")
     private String name;
-    @Size(min = 1, max = 100, message = "Description length should be >= 1 and <= 256")
+    @Size(min = 1, max = 256, message = "Description length should be >= 1 and <= 256")
     @NotEmpty(message = "Description should not be empty")
     private String description;
     @DecimalMin(value = "1", message = "Price should be >= 1")
@@ -34,8 +35,11 @@ public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> 
     private ZonedDateTime lastUpdateDate;
     private List<TagDto> tagList;
 
-    public GiftCertificateDto() {
-    }
+    /**
+     * Instantiates a new Gift certificate dto.
+     * Used mapper.
+     */
+    public GiftCertificateDto() {}
 
     public GiftCertificateDto(String name, String description, BigDecimal price, int duration) {
         this.name = name;
@@ -46,9 +50,9 @@ public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> 
 
     public GiftCertificateDto(
             long id,
-            @Size(min = 1, max = 64, message = "Name length should be >= 1 and  <= 128")
+            @Size(min = 1, max = 128, message = "Name length should be >= 1 and <= 128")
             @NotEmpty(message = "Name should not be empty") String name,
-            @Size(min = 1, max = 100, message = "Description length should be >= 1 and <= 256") String description,
+            @Size(min = 1, max = 256, message = "Description length should be >= 1 and <= 256") String description,
             @Min(value = 1, message = "Price should be >= 1") BigDecimal price,
             @Min(value = 1, message = "Duration should be >= 1") int duration,
             ZonedDateTime createDate, ZonedDateTime lastUpdateDate, List<TagDto> tagDtoList
@@ -139,18 +143,14 @@ public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> 
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-
         GiftCertificateDto that = (GiftCertificateDto) o;
-
-        if (id != that.id) return false;
-        if (duration != that.duration) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (description != null ? !description.equals(that.description) : that.description != null) return false;
-        if (price != null ? !price.equals(that.price) : that.price != null) return false;
-        if (createDate != null ? !createDate.equals(that.createDate) : that.createDate != null) return false;
-        if (lastUpdateDate != null ? !lastUpdateDate.equals(that.lastUpdateDate) : that.lastUpdateDate != null)
-            return false;
-        return tagList != null ? tagList.equals(that.tagList) : that.tagList == null;
+        return id == that.id && duration == that.duration
+                && Objects.equals(name, that.name)
+                && Objects.equals(description, that.description)
+                && Objects.equals(price, that.price)
+                && Objects.equals(createDate, that.createDate)
+                && Objects.equals(lastUpdateDate, that.lastUpdateDate)
+                && Objects.equals(tagList, that.tagList);
     }
 
     @Override

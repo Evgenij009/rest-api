@@ -21,12 +21,7 @@ public interface TagService {
      */
     TagDto create(TagDto tagDto) throws DuplicateEntityException;
 
-    /**
-     * Gets all Tags.
-     *
-     * @return Set of all Tags
-     */
-    List<TagDto> findAll(int page, int size) throws InvalidParameterException;
+    List<TagDto> findAllWithPagination(int page, int size) throws InvalidParameterException;
 
     /**
      * Gets Tag by id.
@@ -44,4 +39,5 @@ public interface TagService {
      * @throws NotFoundEntityException when Tag is not found
      */
     void deleteById(long id) throws NotFoundEntityException;
+    TagDto findMostWidelyUsedTagOfUserWhoMaxSpentMoney() throws NotFoundEntityException;
 }

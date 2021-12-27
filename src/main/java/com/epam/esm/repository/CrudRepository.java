@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface CrudRepository<T extends BaseEntity> {
     T create(T entity);
-    List<T> findAll(int page, int size);
+    List<T> findAllWithPagination(int page, int size);
     Optional<T> findById(long id);
     Optional<T> findByField(String columnName, Object value);
     T update(T entity);

@@ -3,6 +3,7 @@ package com.epam.esm.model.entity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.util.Objects;
 
 @Entity
 @Table(name = "tags")
@@ -25,10 +26,8 @@ public class Tag extends BaseEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Tag tag = (Tag) o;
-
-        return name != null ? name.equals(tag.name) : tag.name == null;
+        return Objects.equals(name, tag.name);
     }
 
     @Override

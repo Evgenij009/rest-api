@@ -10,17 +10,18 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class UpdateGiftCertificateDto extends RepresentationModel<UpdateGiftCertificateDto> {
 
     private long id;
-    @Size(max = 64, message = "Name length should be >= 1 and  <= 128")
+    @Size(min = 1, max = 128, message = "Name length should be >= 1 and  <= 128")
     private String name;
-    @Size(max = 100, message = "Description length should be >= 1 and <= 256")
+    @Size(max = 256, message = "Description length should be >= 1 and <= 256")
     private String description;
-    @Min(0)
+    @Min(1)
     private BigDecimal price;
-    @Min(0)
+    @Min(1)
     private int duration;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
@@ -30,12 +31,16 @@ public class UpdateGiftCertificateDto extends RepresentationModel<UpdateGiftCert
     private ZonedDateTime lastUpdateDate;
     private List<TagDto> tagDtoList;
 
+    /**
+     * Instantiates a new Update gift certificate dto.
+     * Used for mapper.
+     */
     public UpdateGiftCertificateDto() {}
 
     public UpdateGiftCertificateDto(
             long id,
-            @Size(max = 64, message = "Name length should be <= 128") String name,
-            @Size(max = 100, message = "Description length should be >= 1 and <= 256") String description,
+            @Size(max = 128, message = "Name length should be <= 128") String name,
+            @Size(max = 256, message = "Description length should be >= 1 and <= 256") String description,
             @Min(0) BigDecimal price,
             @Min(0) int duration,
             ZonedDateTime createDate, ZonedDateTime lastUpdateDate, List<TagDto> tagDtoList
@@ -62,7 +67,7 @@ public class UpdateGiftCertificateDto extends RepresentationModel<UpdateGiftCert
         return name;
     }
 
-    public void setName(@Size(min = 1, max = 64) String name) {
+    public void setName(@Size(min = 1, max = 128) String name) {
         this.name = name;
     }
 
@@ -126,18 +131,14 @@ public class UpdateGiftCertificateDto extends RepresentationModel<UpdateGiftCert
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-
         UpdateGiftCertificateDto that = (UpdateGiftCertificateDto) o;
-
-        if (id != that.id) return false;
-        if (duration != that.duration) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (description != null ? !description.equals(that.description) : that.description != null) return false;
-        if (price != null ? !price.equals(that.price) : that.price != null) return false;
-        if (createDate != null ? !createDate.equals(that.createDate) : that.createDate != null) return false;
-        if (lastUpdateDate != null ? !lastUpdateDate.equals(that.lastUpdateDate) : that.lastUpdateDate != null)
-            return false;
-        return tagDtoList != null ? tagDtoList.equals(that.tagDtoList) : that.tagDtoList == null;
+        return id == that.id && duration == that.duration
+                && Objects.equals(name, that.name)
+                && Objects.equals(description, that.description)
+                && Objects.equals(price, that.price)
+                && Objects.equals(createDate, that.createDate)
+                && Objects.equals(lastUpdateDate, that.lastUpdateDate)
+                && Objects.equals(tagDtoList, that.tagDtoList);
     }
 
     @Override

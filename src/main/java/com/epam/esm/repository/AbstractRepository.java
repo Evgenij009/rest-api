@@ -37,7 +37,7 @@ public abstract class AbstractRepository<T extends BaseEntity> implements CrudRe
     }
 
     @Override
-    public List<T> findAll(int page, int size) {
+    public List<T> findAllWithPagination(int page, int size) {
         CriteriaQuery<T> query = builder.createQuery(entityClass);
         Root<T> root = query.from(entityClass);
         query.select(root);

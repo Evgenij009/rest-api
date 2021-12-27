@@ -56,6 +56,19 @@ public class GiftCertificateController {
         return giftCertificateDto;
     }
 
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public GiftCertificateDto replaceById(
+            @PathVariable(ID_PATH_VARIABLE) long id,
+            @RequestBody @Valid GiftCertificateDto giftCertificateDto,
+            BindingResult bindingResult) throws NotFoundEntityException {
+        RequestParametersValidator.validateId(id);
+        ValidationExceptionChecker.checkDtoValid(bindingResult);
+        GiftCertificateDto replacedDto = giftCertificateService.replaceById(id, giftCertificateDto);
+        giftCertificateLinkProvider.provideLinks(replacedDto);
+        return replacedDto;
+    }
+
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public List<GiftCertificateDto> findAllByTags(

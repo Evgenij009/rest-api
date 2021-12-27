@@ -4,10 +4,7 @@ import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -118,17 +115,15 @@ public class User extends BaseEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         User user = (User) o;
-
-        if (name != null ? !name.equals(user.name) : user.name != null) return false;
-        if (spentMoney != null ? !spentMoney.equals(user.spentMoney) : user.spentMoney != null) return false;
-        if (login != null ? !login.equals(user.login) : user.login != null) return false;
-        if (password != null ? !password.equals(user.password) : user.password != null) return false;
-        if (email != null ? !email.equals(user.email) : user.email != null) return false;
-        if (status != user.status) return false;
-        if (roles != null ? !roles.equals(user.roles) : user.roles != null) return false;
-        return orders != null ? orders.equals(user.orders) : user.orders == null;
+        return Objects.equals(name, user.name)
+                && Objects.equals(spentMoney, user.spentMoney)
+                && Objects.equals(login, user.login)
+                && Objects.equals(password, user.password)
+                && Objects.equals(email, user.email)
+                && status == user.status
+                && Objects.equals(roles, user.roles)
+                && Objects.equals(orders, user.orders);
     }
 
     @Override

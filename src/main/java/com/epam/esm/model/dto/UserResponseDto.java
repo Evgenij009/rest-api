@@ -11,33 +11,31 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.StringJoiner;
 
-public class UserDto extends RepresentationModel<UserDto> {
+public class UserResponseDto extends RepresentationModel<UserResponseDto> {
+
     private long id;
-
     @NotEmpty
     @Size(min = 1, max = 64, message = "Name length should be >= 1 and <= 64")
     private String name;
-
     private BigDecimal spentMoney;
-
     @NotEmpty
     @Size(min = 1, max = 64)
-    private String password;
-
+    private String login;
     @NotEmpty
     @Email
     @Size(min = 5, max = 64, message = "Email length should be >= 5 and <= 64")
     private String email;
-
     private Status status;
-
     private Set<Role> roles = new HashSet<>();
 
-    public UserDto() {}
+    /**
+     * Instantiates a new User response dto.
+     * Used mapper
+     */
+    public UserResponseDto() {}
 
-    public UserDto(long id, String name, BigDecimal spentMoney) {
+    public UserResponseDto(long id, String name, BigDecimal spentMoney) {
         this.id = id;
         this.name = name;
         this.spentMoney = spentMoney;
@@ -67,12 +65,12 @@ public class UserDto extends RepresentationModel<UserDto> {
         this.spentMoney = spentMoney;
     }
 
-    public String getPassword() {
-        return password;
+    public String getLogin() {
+        return login;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setLogin(String login) {
+        this.login = login;
     }
 
     public String getEmail() {
@@ -104,13 +102,13 @@ public class UserDto extends RepresentationModel<UserDto> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        UserDto userDto = (UserDto) o;
-        return id == userDto.id && Objects.equals(name, userDto.name)
-                && Objects.equals(spentMoney, userDto.spentMoney)
-                && Objects.equals(password, userDto.password)
-                && Objects.equals(email, userDto.email)
-                && status == userDto.status
-                && Objects.equals(roles, userDto.roles);
+        UserResponseDto that = (UserResponseDto) o;
+        return id == that.id && Objects.equals(name, that.name)
+                && Objects.equals(spentMoney, that.spentMoney)
+                && Objects.equals(login, that.login)
+                && Objects.equals(email, that.email)
+                && status == that.status
+                && Objects.equals(roles, that.roles);
     }
 
     @Override
@@ -119,7 +117,7 @@ public class UserDto extends RepresentationModel<UserDto> {
         result = 31 * result + (int) (id ^ (id >>> 32));
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (spentMoney != null ? spentMoney.hashCode() : 0);
-        result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + (login != null ? login.hashCode() : 0);
         result = 31 * result + (email != null ? email.hashCode() : 0);
         result = 31 * result + (status != null ? status.hashCode() : 0);
         result = 31 * result + (roles != null ? roles.hashCode() : 0);
@@ -128,14 +126,15 @@ public class UserDto extends RepresentationModel<UserDto> {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", UserDto.class.getSimpleName() + "[", "]")
-                .add("id=" + id)
-                .add("name='" + name + "'")
-                .add("spentMoney=" + spentMoney)
-                .add("password='" + password + "'")
-                .add("email='" + email + "'")
-                .add("status=" + status)
-                .add("roles=" + roles)
-                .toString();
+        final StringBuilder sb = new StringBuilder("UserResponseDto{");
+        sb.append("id=").append(id);
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", spentMoney=").append(spentMoney);
+        sb.append(", login='").append(login).append('\'');
+        sb.append(", email='").append(email).append('\'');
+        sb.append(", status=").append(status);
+        sb.append(", roles=").append(roles);
+        sb.append('}');
+        return sb.toString();
     }
 }

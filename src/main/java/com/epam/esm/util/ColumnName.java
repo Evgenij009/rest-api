@@ -12,4 +12,7 @@ public final class ColumnName {
     public static final String TAG_ID = "tag_id";
     public static final String USER_ID = "userId";
     public static final String LOGIN = "login";
+    public static final String ORDERS = "orders";
+
+    private ColumnName() {}
 }

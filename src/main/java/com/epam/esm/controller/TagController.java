@@ -50,7 +50,7 @@ public class TagController {
             @RequestParam(name = SIZE, required = false, defaultValue = DEFAULT_SIZE) int size
     ) throws InvalidParameterException {
         RequestParametersValidator.validatePaginationParams(page, size);
-        List<TagDto> tagDtoList = tagService.findAll(page, size);
+        List<TagDto> tagDtoList = tagService.findAllWithPagination(page, size);
         return tagDtoList.stream()
                 .peek(tagLinkProvider::provideLinks)
                 .collect(Collectors.toList());
@@ -70,5 +70,13 @@ public class TagController {
     public void deleteById(@PathVariable("id") long id) {
         RequestParametersValidator.validateId(id);
         tagService.deleteById(id);
+    }
+
+    @GetMapping("/best")
+    @ResponseStatus(HttpStatus.OK)
+    public TagDto findTheMostWidelyUsedTagOfUserWithHighestOrderCost() throws NotFoundEntityException {
+        TagDto tagDto = tagService.findMostWidelyUsedTagOfUserWhoMaxSpentMoney();
+        tagLinkProvider.provideLinks(tagDto);
+        return tagDto;
     }
 }

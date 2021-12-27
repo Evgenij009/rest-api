@@ -4,6 +4,7 @@ import org.springframework.hateoas.RepresentationModel;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 public class OrderDto extends RepresentationModel<OrderDto> {
     private long id;
@@ -12,6 +13,10 @@ public class OrderDto extends RepresentationModel<OrderDto> {
     private ZonedDateTime orderDate;
     private BigDecimal cost;
 
+    /**
+     * Instantiates a new Order dto.
+     * Used mapper.
+     */
     public OrderDto() {}
 
     public OrderDto(long id, UserDto user, GiftCertificateDto giftCertificate, ZonedDateTime orderDate, BigDecimal cost) {
@@ -67,15 +72,11 @@ public class OrderDto extends RepresentationModel<OrderDto> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-
         OrderDto orderDto = (OrderDto) o;
-
-        if (id != orderDto.id) return false;
-        if (user != null ? !user.equals(orderDto.user) : orderDto.user != null) return false;
-        if (giftCertificate != null ? !giftCertificate.equals(orderDto.giftCertificate) : orderDto.giftCertificate != null)
-            return false;
-        if (orderDate != null ? !orderDate.equals(orderDto.orderDate) : orderDto.orderDate != null) return false;
-        return cost != null ? cost.equals(orderDto.cost) : orderDto.cost == null;
+        return id == orderDto.id && Objects.equals(user, orderDto.user)
+                && Objects.equals(giftCertificate, orderDto.giftCertificate)
+                && Objects.equals(orderDate, orderDto.orderDate)
+                && Objects.equals(cost, orderDto.cost);
     }
 
     @Override
