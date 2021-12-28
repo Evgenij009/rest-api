@@ -1,5 +1,6 @@
 package com.epam.esm.service.impl;
 
+import com.epam.esm.exception.DuplicateEntityException;
 import com.epam.esm.exception.NotFoundEntityException;
 import com.epam.esm.mapper.GiftCertificateMapper;
 import com.epam.esm.mapper.UpdateGiftCertificateMapper;
@@ -24,6 +25,7 @@ import java.util.Optional;
 @Service
 public class GiftCertificateServiceImpl implements GiftCertificateService {
     private static final String CERTIFICATE_NOT_FOUND = "certificate.not.found";
+    private static final String CERTIFICATE_ALREADY_EXIST = "certificate.already.exist";
     private final GiftCertificateRepository giftCertificateRepository;
     private final TagRepository tagRepository;
     private final GiftCertificateMapper giftCertificateMapper;
@@ -44,16 +46,17 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Transactional
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
         GiftCertificate giftCertificate = giftCertificateMapper.mapToEntity(giftCertificateDto);
+        checkDuplicateGiftCertificate(giftCertificate);
         List<Tag> tagsToAdd = new ArrayList<>();
         if (giftCertificate.getTagList() != null) {
-         for (Tag tag : giftCertificate.getTagList()) {
-             Optional<Tag> tagOptional = tagRepository.findByName(tag.getName());
-             if (tagOptional.isPresent()) {
-                 tagsToAdd.add(tagOptional.get());
-             } else {
-                 tagsToAdd.add(tag);
-             }
-         }
+            for (Tag tag : giftCertificate.getTagList()) {
+                Optional<Tag> tagOptional = tagRepository.findByName(tag.getName());
+                if (tagOptional.isPresent()) {
+                    tagsToAdd.add(tagOptional.get());
+                } else {
+                    tagsToAdd.add(tag);
+                }
+            }
         }
         giftCertificate.setTagList(tagsToAdd);
         return giftCertificateMapper.mapToDto(giftCertificateRepository.create(giftCertificate));
@@ -62,8 +65,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto findById(long id) {
-       GiftCertificate giftCertificate = checkExistGiftCertificateById(id);
-       return giftCertificateMapper.mapToDto(giftCertificate);
+        GiftCertificate giftCertificate = checkExistGiftCertificateById(id);
+        return giftCertificateMapper.mapToDto(giftCertificate);
     }
 
     @Override
@@ -107,7 +110,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     @Transactional(rollbackFor = NotFoundEntityException.class)
-    public GiftCertificateDto replaceById(long id, GiftCertificateDto giftCertificateDto) throws NotFoundEntityException {
+    public GiftCertificateDto replaceById(long id, GiftCertificateDto giftCertificateDto)
+            throws NotFoundEntityException {
         GiftCertificate giftCertificate = checkExistGiftCertificateById(id);
         GiftCertificate replaceGiftCertificate = giftCertificateMapper.mapToEntity(giftCertificateDto);
         updateFields(giftCertificate, replaceGiftCertificate);
@@ -150,5 +154,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private GiftCertificate checkExistGiftCertificateById(long id) {
         return giftCertificateRepository.findById(id)
                 .orElseThrow(() -> new NotFoundEntityException(CERTIFICATE_NOT_FOUND));
+    }
+
+    private void checkDuplicateGiftCertificate(GiftCertificate giftCertificate) {
+        if (giftCertificateRepository.findByName(giftCertificate.getName()).isPresent()) {
+            throw new DuplicateEntityException(CERTIFICATE_ALREADY_EXIST);
+        }
     }
 }

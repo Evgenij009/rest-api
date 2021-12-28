@@ -11,6 +11,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 public class UpdateGiftCertificateDto extends RepresentationModel<UpdateGiftCertificateDto> {
 
@@ -41,8 +42,8 @@ public class UpdateGiftCertificateDto extends RepresentationModel<UpdateGiftCert
             long id,
             @Size(max = 128, message = "Name length should be <= 128") String name,
             @Size(max = 256, message = "Description length should be >= 1 and <= 256") String description,
-            @Min(0) BigDecimal price,
-            @Min(0) int duration,
+            @Min(1) BigDecimal price,
+            @Min(1) int duration,
             ZonedDateTime createDate, ZonedDateTime lastUpdateDate, List<TagDto> tagDtoList
     ) {
         this.id = id;
@@ -157,16 +158,15 @@ public class UpdateGiftCertificateDto extends RepresentationModel<UpdateGiftCert
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("GiftCertificateDto{");
-        sb.append("id=").append(id);
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", description='").append(description).append('\'');
-        sb.append(", price=").append(price);
-        sb.append(", duration=").append(duration);
-        sb.append(", createDate=").append(createDate);
-        sb.append(", lastUpdateDate=").append(lastUpdateDate);
-        sb.append(", tagDtoList=").append(tagDtoList);
-        sb.append('}');
-        return sb.toString();
+        return new StringJoiner(", ", UpdateGiftCertificateDto.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("name='" + name + "'")
+                .add("description='" + description + "'")
+                .add("price=" + price)
+                .add("duration=" + duration)
+                .add("createDate=" + createDate)
+                .add("lastUpdateDate=" + lastUpdateDate)
+                .add("tagDtoList=" + tagDtoList)
+                .toString();
     }
 }

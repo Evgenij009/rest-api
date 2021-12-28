@@ -14,6 +14,11 @@ public class Tag extends BaseEntity {
 
     public Tag() {}
 
+    public Tag(long id, String name) {
+        super(id);
+        this.name = name;
+    }
+
     public String getName() {
         return name;
     }

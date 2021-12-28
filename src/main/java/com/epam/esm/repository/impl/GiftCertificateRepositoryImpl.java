@@ -13,10 +13,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class GiftCertificateRepositoryImpl extends AbstractRepository<GiftCertificate>
         implements GiftCertificateRepository {
+    private static final String TAG_LIST = "tagList";
 
     @Autowired
     public GiftCertificateRepositoryImpl(EntityManager entityManager) {
@@ -53,11 +55,15 @@ public class GiftCertificateRepositoryImpl extends AbstractRepository<GiftCertif
             }
         }
 
-        List<GiftCertificate> giftCertificateList = entityManager.createQuery(query)
+        return entityManager.createQuery(query)
                 .setFirstResult(page * size)
                 .setMaxResults(size)
                 .getResultList();
-        return giftCertificateList;
+    }
+
+    @Override
+    public Optional<GiftCertificate> findByName(String name) {
+        return findByField(ColumnName.NAME, name);
     }
 
     private Predicate buildPredicateByPartInfo(Root<GiftCertificate> root, String partInfo) {
@@ -69,7 +75,7 @@ public class GiftCertificateRepositoryImpl extends AbstractRepository<GiftCertif
     }
 
     private Predicate buildPredicateByTagName(Root<GiftCertificate> root, List<String> tagNames) {
-        Join<GiftCertificate, Tag> tagJoin = root.join("tagList");
+        Join<GiftCertificate, Tag> tagJoin = root.join(TAG_LIST);
 
         return utilBuilderQuery.buildOrEqualPredicates(tagJoin, ColumnName.NAME, tagNames);
     }

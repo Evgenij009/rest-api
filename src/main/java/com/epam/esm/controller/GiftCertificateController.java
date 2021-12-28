@@ -47,11 +47,11 @@ public class GiftCertificateController {
     @ResponseStatus(HttpStatus.OK)
     public GiftCertificateDto updateById(
             @PathVariable(ID_PATH_VARIABLE) long id,
-            @RequestBody @Valid UpdateGiftCertificateDto updateGiftCertificateDto,
+            @RequestBody @Valid UpdateGiftCertificateDto giftCertificate,
             BindingResult bindingResult) {
         RequestParametersValidator.validateId(id);
         ValidationExceptionChecker.checkDtoValid(bindingResult);
-        GiftCertificateDto giftCertificateDto = giftCertificateService.updateById(id, updateGiftCertificateDto);
+        GiftCertificateDto giftCertificateDto = giftCertificateService.updateById(id, giftCertificate);
         giftCertificateLinkProvider.provideLinks(giftCertificateDto);
         return giftCertificateDto;
     }

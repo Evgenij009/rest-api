@@ -65,6 +65,18 @@ public class GiftCertificate extends BaseEntity {
         this.tagList = tagList;
     }
 
+    public GiftCertificate(long id, String name, String description, BigDecimal price, int duration,
+                           ZonedDateTime createDate, ZonedDateTime lastUpdateDate, List<Tag> tagList) {
+        super(id);
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.duration = duration;
+        this.createDate = createDate;
+        this.lastUpdateDate = lastUpdateDate;
+        this.tagList = tagList;
+    }
+
     @PrePersist
     protected void onCreate() {
         this.createDate = ZonedDateTime.now();

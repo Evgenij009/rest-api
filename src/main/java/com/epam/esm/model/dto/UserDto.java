@@ -23,6 +23,10 @@ public class UserDto extends RepresentationModel<UserDto> {
     private BigDecimal spentMoney;
 
     @NotEmpty
+    @Size(min = 1, max = 64, message = "login length should be >= 1 and <= 64")
+    private String login;
+
+    @NotEmpty
     @Size(min = 1, max = 64)
     private String password;
 
@@ -41,6 +45,14 @@ public class UserDto extends RepresentationModel<UserDto> {
         this.id = id;
         this.name = name;
         this.spentMoney = spentMoney;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
     }
 
     public long getId() {
@@ -107,6 +119,7 @@ public class UserDto extends RepresentationModel<UserDto> {
         UserDto userDto = (UserDto) o;
         return id == userDto.id && Objects.equals(name, userDto.name)
                 && Objects.equals(spentMoney, userDto.spentMoney)
+                && Objects.equals(login, userDto.login)
                 && Objects.equals(password, userDto.password)
                 && Objects.equals(email, userDto.email)
                 && status == userDto.status
@@ -115,15 +128,7 @@ public class UserDto extends RepresentationModel<UserDto> {
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (int) (id ^ (id >>> 32));
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (spentMoney != null ? spentMoney.hashCode() : 0);
-        result = 31 * result + (password != null ? password.hashCode() : 0);
-        result = 31 * result + (email != null ? email.hashCode() : 0);
-        result = 31 * result + (status != null ? status.hashCode() : 0);
-        result = 31 * result + (roles != null ? roles.hashCode() : 0);
-        return result;
+        return Objects.hash(super.hashCode(), id, name, spentMoney, login, password, email, status, roles);
     }
 
     @Override
@@ -132,6 +137,7 @@ public class UserDto extends RepresentationModel<UserDto> {
                 .add("id=" + id)
                 .add("name='" + name + "'")
                 .add("spentMoney=" + spentMoney)
+                .add("login='" + login + "'")
                 .add("password='" + password + "'")
                 .add("email='" + email + "'")
                 .add("status=" + status)

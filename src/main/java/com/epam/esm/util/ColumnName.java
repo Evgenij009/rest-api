@@ -13,6 +13,7 @@ public final class ColumnName {
     public static final String USER_ID = "userId";
     public static final String LOGIN = "login";
     public static final String ORDERS = "orders";
+    public static final String CERTIFICATE_ID = "certificateId";
 
     private ColumnName() {}
 }
