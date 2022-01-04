@@ -2,8 +2,9 @@ package com.epam.esm.service;
 
 import com.epam.esm.exception.DuplicateEntityException;
 import com.epam.esm.exception.InvalidEntityException;
+import com.epam.esm.exception.InvalidParameterException;
 import com.epam.esm.exception.NotFoundEntityException;
-import com.epam.esm.model.entity.Tag;
+import com.epam.esm.model.dto.TagDto;
 
 import java.util.List;
 
@@ -13,19 +14,14 @@ import java.util.List;
 public interface TagService {
     /**
      * Create new Tag.
-     * @param tag Tag to create
+     * @param tagDto Tag to create
      * @return id location of new Tag
      * @throws InvalidEntityException when Tag data is invalid
      * @throws DuplicateEntityException when Tag is already exist
      */
-    long create(Tag tag);
+    TagDto create(TagDto tagDto) throws DuplicateEntityException;
 
-    /**
-     * Gets all Tags.
-     *
-     * @return Set of all Tags
-     */
-    List<Tag> findAll();
+    List<TagDto> findAllWithPagination(int page, int size) throws InvalidParameterException;
 
     /**
      * Gets Tag by id.
@@ -34,7 +30,7 @@ public interface TagService {
      * @return founded Tag
      * @throws NotFoundEntityException when Tag is not found
      */
-    Tag findById(long id);
+    TagDto findById(long id) throws NotFoundEntityException;
 
     /**
      * Deletes Tag by id.
@@ -42,5 +38,6 @@ public interface TagService {
      * @param id Tag id to search
      * @throws NotFoundEntityException when Tag is not found
      */
-    void deleteById(long id);
+    void deleteById(long id) throws NotFoundEntityException;
+    TagDto findMostWidelyUsedTagOfUserWhoMaxSpentMoney() throws NotFoundEntityException;
 }

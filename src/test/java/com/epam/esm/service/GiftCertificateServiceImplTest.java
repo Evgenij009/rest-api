@@ -1,125 +1,140 @@
 package com.epam.esm.service;
 
-import com.epam.esm.dao.GiftCertificateDao;
-import com.epam.esm.dao.GiftCertificateHasTagDao;
-import com.epam.esm.dao.TagDao;
-import com.epam.esm.dao.impl.GiftCertificateDaoImpl;
-import com.epam.esm.dao.impl.TagDaoImpl;
 import com.epam.esm.exception.NotFoundEntityException;
-import com.epam.esm.model.dto.GiftCertificateDto;
+import com.epam.esm.mapper.GiftCertificateMapperImpl;
+import com.epam.esm.mapper.UpdateGiftCertificateMapperImpl;
 import com.epam.esm.model.entity.GiftCertificate;
 import com.epam.esm.model.entity.Tag;
+import com.epam.esm.repository.impl.GiftCertificateRepositoryImpl;
+import com.epam.esm.repository.impl.TagRepositoryImpl;
 import com.epam.esm.service.impl.GiftCertificateServiceImpl;
 import com.epam.esm.util.SortParamsContext;
-import com.epam.esm.validator.GiftCertificateValidator;
 import com.epam.esm.validator.SortParamsContextValidator;
-import com.epam.esm.validator.TagValidator;
-import com.epam.esm.validator.Validator;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.Assertions;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.validation.ValidationException;
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Optional;
+import java.time.ZonedDateTime;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = {
+        GiftCertificateServiceImpl.class,
+        GiftCertificateMapperImpl.class,
+        UpdateGiftCertificateMapperImpl.class})
 public class GiftCertificateServiceImplTest {
     private static final long ID = 1;
-    private static final GiftCertificate GIFT_CERTIFICATE = new GiftCertificate(ID, "name",
-            "description", BigDecimal.TEN, 5, new Date(System.currentTimeMillis()),
-            new Date(System.currentTimeMillis()));
-    private static final GiftCertificateDto GIFT_CERTIFICATE_DTO
-            = new GiftCertificateDto(GIFT_CERTIFICATE, new HashSet<>());
-    private GiftCertificateDao certificateDao;
-    private Validator<GiftCertificate> certificateValidator;
-    private TagDao tagDao;
-    private Validator<Tag> tagValidator;
-    private Validator<SortParamsContext> sortParamsContextValidator;
-    private GiftCertificateHasTagDao giftCertificateHasTagDao;
+    private static final String NAME = "name";
+    private static final String DESCRIPTION = "description";
+    private static final BigDecimal PRICE = BigDecimal.TEN;
+    private static final ZonedDateTime UPDATE_TIME = ZonedDateTime.now();
+    private static final ZonedDateTime CREATE_TIME = ZonedDateTime.now();
+    private static final int DURATION = 5;
+    private static final GiftCertificate GIFT_CERTIFICATE = new GiftCertificate(
+            ID, NAME, DESCRIPTION, PRICE, DURATION, CREATE_TIME, UPDATE_TIME, null
+    );
+    private static final Tag TAG = new Tag(ID, "new");
+    private static final GiftCertificate GIFT_CERTIFICATE_WITH_TAGS = new GiftCertificate(
+            ID, NAME, DESCRIPTION, PRICE, DURATION, CREATE_TIME, UPDATE_TIME, null
+    );
+
+    static {
+        List<Tag> tagList = new ArrayList<>(Arrays.asList(TAG));
+        GIFT_CERTIFICATE_WITH_TAGS.setTagList(tagList);
+    }
+
+    private static final String PART_INFO = "z";
+    private static final List<String> SORTING_COLUMN = Collections.singletonList("name");
+    private static final SortParamsContext SORT_PARAMS = new SortParamsContext(SORTING_COLUMN, null);
+    private static final int DEFAULT_PAGE = 0;
+    private static final int DEFAULT_PAGE_SIZE = 50;
+
+    @MockBean
+    private GiftCertificateRepositoryImpl certificateRepository;
+    @MockBean
+    private TagRepositoryImpl tagRepository;
+    @MockBean
+    private SortParamsContextValidator sortParamsContextValidator;
+    @Autowired
     private GiftCertificateServiceImpl giftCertificateService;
+    @Autowired
+    private GiftCertificateMapperImpl giftCertificateMapper;
+    @Autowired
+    private UpdateGiftCertificateMapperImpl updateGiftCertificateMapper;
 
-    @BeforeEach
-    public void initMethod() {
-        certificateDao = Mockito.mock(GiftCertificateDaoImpl.class);
-        certificateValidator = Mockito.mock(GiftCertificateValidator.class);
-        tagDao = Mockito.mock(TagDaoImpl.class);
-        tagValidator = Mockito.mock(TagValidator.class);
-        giftCertificateHasTagDao = Mockito.mock(GiftCertificateHasTagDao.class);
-        sortParamsContextValidator = Mockito.mock(SortParamsContextValidator.class);
-        giftCertificateService = new GiftCertificateServiceImpl(
-                certificateDao,
-                tagDao,
-                giftCertificateHasTagDao,
-                certificateValidator,
-                tagValidator,
-                sortParamsContextValidator
-        );
+    @Test()
+    public void testGetAllShouldThrowsValidationExceptionWhenParamsInvalid() {
+        Assertions.assertThrows(ValidationException.class, () -> {
+            giftCertificateService.findBySearchParams(null, null, null, null, -3, -2);
+        });
+    }
+
+    @Test()
+    public void getAllWithTagsShouldThrowsValidationExceptionWhenParamsInvalid() {
+        Assertions.assertThrows(ValidationException.class, () -> {
+            giftCertificateService.findBySearchParams(null, null,
+                    null, null, -3, -2);
+        });
     }
 
     @Test
-    public void testCreate_ShouldCreateWhenNotExistAndValid() {
-        when(certificateValidator.isValid(any())).thenReturn(true);
-        when(tagValidator.isValid(any())).thenReturn(true);
-        when(certificateDao.findByName(anyString())).thenReturn(Optional.empty());
-        giftCertificateService.create(GIFT_CERTIFICATE_DTO);
-        verify(certificateDao).create(GIFT_CERTIFICATE);
+    public void testGetByIdShouldGetWhenFound() {
+        when(certificateRepository.findById(anyLong())).thenReturn(Optional.of(GIFT_CERTIFICATE));
+        giftCertificateService.findById(ID);
+        verify(certificateRepository).findById(ID);
+    }
+
+    @Test()
+    public void testGetByIdShouldThrowsNoFoundEntityExceptionWhenNotFound() {
+        Assertions.assertThrows(NotFoundEntityException.class, () -> {
+            when(certificateRepository.findById(anyLong())).thenReturn(Optional.empty());
+            giftCertificateService.findById(ID);
+        });
     }
 
     @Test
-    public void testFindAll_ShouldGetAll() {
-        giftCertificateService.findAll();
-        verify(certificateDao).findAll();
+    public void testUpdateByIdShouldUpdateWhenFound() {
+        when(certificateRepository.findById(anyLong())).thenReturn(Optional.of(GIFT_CERTIFICATE));
+        giftCertificateService.updateById(ID, updateGiftCertificateMapper.mapToDto(GIFT_CERTIFICATE));
+        verify(certificateRepository).update(GIFT_CERTIFICATE);
     }
 
     @Test
-    public void testFindByIdShouldThrowsNotFoundEntityExceptionWhenNotFound() {
-        when(certificateDao.findById(anyLong())).thenReturn(Optional.empty());
-        assertThrows(NotFoundEntityException.class, () -> giftCertificateService.findById(ID));
+    public void testUpdateByIdShouldCreateTagWhenNewTagPassed() {
+        when(certificateRepository.findById(anyLong())).thenReturn(Optional.of(GIFT_CERTIFICATE_WITH_TAGS));
+        when(tagRepository.findByName(any())).thenReturn(Optional.empty());
+        giftCertificateService.updateById(ID, updateGiftCertificateMapper.mapToDto(GIFT_CERTIFICATE_WITH_TAGS));
+        verify(tagRepository).create(TAG);
     }
 
     @Test
-    public void testFindAllWithTagsShouldFindWithSortingAndFilteringWhenExist() {
-        when(sortParamsContextValidator.isValid(any())).thenReturn(true);
-        giftCertificateService.findAllWithTags(null, "p",
-                Collections.singletonList("name"), null);
-        verify(certificateDao).findAllWithSortingFiltering(any(), any(), anyString());
+    public void testUpdateByIdShouldThrowsNoSuchEntityExceptionWhenNotFound() {
+        Assertions.assertThrows(NotFoundEntityException.class, () -> {
+            when(certificateRepository.findById(anyLong())).thenReturn(Optional.empty());
+            giftCertificateService.updateById(ID, updateGiftCertificateMapper.mapToDto(GIFT_CERTIFICATE));
+        });
     }
 
     @Test
-    public void testFindAllWithTags_ShouldFindAllWhenFilteringAndSortingNotExist() {
-        giftCertificateService.findAllWithTags(null, null, null, null);
-        verify(certificateDao).findAll();
+    public void testDeleteByIdShouldDeleteWhenFound() {
+        when(certificateRepository.findById(anyLong())).thenReturn(Optional.of(GIFT_CERTIFICATE));
+        giftCertificateService.deleteById(ID);
+        verify(certificateRepository).deleteById(ID);
     }
 
     @Test
-    public void testFindAllWithTags_ShouldGetWithSFilteringWhenFilteringExist() {
-        giftCertificateService.findAllWithTags(null, "z", null, null);
-        verify(certificateDao).findAllWithFiltering(any(), anyString());
-    }
-
-    @Test
-    public void testFindAllWithTags_ShouldGetWithSortingWhenSortingExist() {
-        when(sortParamsContextValidator.isValid(any())).thenReturn(true);
-        giftCertificateService.findAllWithTags(null, null,
-                Collections.singletonList("name"), null);
-        verify(certificateDao).findAllWithSorting(any());
-    }
-
-    @Test
-    public void testUpdateByIds_ShouldUpdateWhenFound() {
-        when(certificateDao.findById(anyLong())).thenReturn(Optional.of(GIFT_CERTIFICATE));
-        when(((GiftCertificateValidator)certificateValidator).isNameValid(anyString())).thenReturn(true);
-        when(((GiftCertificateValidator)certificateValidator).isDescriptionValid(anyString())).thenReturn(true);
-        when(((GiftCertificateValidator)certificateValidator).isDurationValid(anyInt())).thenReturn(true);
-        when(((GiftCertificateValidator)certificateValidator).isPriceValid(any())).thenReturn(true);
-        giftCertificateService.updateById(ID, GIFT_CERTIFICATE_DTO);
-        verify(certificateDao).updateById(anyLong(), any());
+    public void testDeleteByIdShouldThrowsNoSuchEntityExceptionWhenNotFound() {
+        Assertions.assertThrows(NotFoundEntityException.class, () -> {
+            when(certificateRepository.findById(anyLong())).thenReturn(Optional.empty());
+            giftCertificateService.deleteById(ID);
+        });
     }
 }

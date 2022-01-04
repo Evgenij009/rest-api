@@ -1,26 +1,37 @@
 package com.epam.esm.validator;
 
-import com.epam.esm.model.entity.GiftCertificate;
 import com.epam.esm.util.SortParamsContext;
-import org.springframework.stereotype.Component;
 
+import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Component
-public class SortParamsContextValidator implements Validator<SortParamsContext> {
-    private static final List<String> ORDER_TYPES = Arrays.asList("ASC", "DESC");
-    private static final List<String> CERTIFICATE_FIELD_NAMES = new ArrayList<>();
+import static com.epam.esm.util.ColumnName.*;
 
-    static {
-        Arrays.stream(GiftCertificate.class.getDeclaredFields())
-                .forEach(field -> CERTIFICATE_FIELD_NAMES.add(field.getName()));
+public class SortParamsContextValidator {
+    private static final List<String> availableColumns = new ArrayList<>(
+            Arrays.asList(ID, NAME, DESCRIPTION, PRICE,
+                    DURATION, CREATE_DATE, LAST_UPDATE_DATE)
+    );
+    private static final List<String> availableOrderTypes = new ArrayList<>(Arrays.asList("ASC", "DESC"));
+
+    public static void validateParams(SortParamsContext item) {
+        if (item.getSortColumns() != null) {
+            for (String columnName : item.getSortColumns()) {
+                if (!availableColumns.contains(columnName)) {
+                    throw new ValidationException("validation.not.available.column");
+                }
+            }
+        }
+        if (item.getOrderTypes() != null) {
+            for (String orderType : item.getOrderTypes()) {
+                if (!availableOrderTypes.contains(orderType)) {
+                    throw new ValidationException("validation.not.available.order");
+                }
+            }
+        }
     }
 
-    @Override
-    public boolean isValid(SortParamsContext item) {
-        return CERTIFICATE_FIELD_NAMES.containsAll(item.getSortColumns())
-                && item.getOrderTypes().stream().allMatch(o -> ORDER_TYPES.contains(o.toUpperCase()));
-    }
+    private SortParamsContextValidator() {}
 }
