@@ -8,7 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.support.ResourceBundleMessageSource;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "com.epam")
+@ComponentScan(basePackages = "com.epam.esm")
 @EntityScan(basePackages = "com.epam.esm.model")
 public class App {
     public static void main(String[] args) {

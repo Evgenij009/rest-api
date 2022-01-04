@@ -12,6 +12,7 @@ import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.util.SortParamsContext;
+import com.epam.esm.validator.RequestParametersValidator;
 import com.epam.esm.validator.SortParamsContextValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -84,13 +85,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     @Transactional
-    public void deleteById(long id) {
-        checkExistGiftCertificateById(id);
-        giftCertificateRepository.deleteById(id);
-    }
-
-    @Override
-    @Transactional
     public List<GiftCertificateDto> findBySearchParams(List<String> tagNames,
                                                        String partInfo,
                                                        List<String> sortColumns,
@@ -101,11 +95,19 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             sortParamsContext = new SortParamsContext(sortColumns, orderTypes);
             SortParamsContextValidator.validateParams(sortParamsContext);
         }
+        RequestParametersValidator.validatePaginationParams(page, size);
         return giftCertificateMapper.mapListToDto(
                 giftCertificateRepository.findAllWithSortingFiltering(
                         sortParamsContext, tagNames, partInfo, page, size
                 )
         );
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(long id) {
+        checkExistGiftCertificateById(id);
+        giftCertificateRepository.deleteById(id);
     }
 
     @Override

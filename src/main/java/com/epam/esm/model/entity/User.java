@@ -41,6 +41,11 @@ public class User extends BaseEntity {
 
     public User() {}
 
+    public User(long id, String name) {
+        super(id);
+        this.name = name;
+    }
+
     @PrePersist
     protected void onCreate() {
         spentMoney = BigDecimal.ZERO;
@@ -141,16 +146,15 @@ public class User extends BaseEntity {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("User{");
-        sb.append("name='").append(name).append('\'');
-        sb.append(", spentMoney=").append(spentMoney);
-        sb.append(", login='").append(login).append('\'');
-        sb.append(", password='").append(password).append('\'');
-        sb.append(", email='").append(email).append('\'');
-        sb.append(", status=").append(status);
-        sb.append(", roles=").append(roles);
-        sb.append(", orders=").append(orders);
-        sb.append('}');
-        return sb.toString();
+        return new StringJoiner(", ", User.class.getSimpleName() + "[", "]")
+                .add("name='" + name + "'")
+                .add("spentMoney=" + spentMoney)
+                .add("login='" + login + "'")
+                .add("password='" + password + "'")
+                .add("email='" + email + "'")
+                .add("status=" + status)
+                .add("roles=" + roles)
+                .add("orders=" + orders)
+                .toString();
     }
 }

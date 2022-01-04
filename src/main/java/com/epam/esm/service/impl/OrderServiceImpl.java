@@ -12,6 +12,7 @@ import com.epam.esm.repository.OrderRepository;
 import com.epam.esm.repository.UserRepository;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.UserService;
+import com.epam.esm.validator.RequestParametersValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +60,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public List<OrderDto> findAllByUserId(long userId, int page, int size) throws NotFoundEntityException {
+        RequestParametersValidator.validatePaginationParams(page, size);
         userRepository.findById(userId).orElseThrow(() -> new NotFoundEntityException(USER_NOT_FOUND));
         return orderMapper.mapListToDto(orderRepository.findAllByUserId(userId, page, size));
     }
@@ -70,9 +72,13 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new NotFoundEntityException(ORDER_NOT_FOUND));
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundEntityException(USER_NOT_FOUND));
         List<Order> orders = user.getOrders();
-        if (orders == null || orders.isEmpty() || !orders.contains(orders)) {
+        checkExistOrder(orders, order);
+        return orderMapper.mapToDto(order);
+    }
+
+    private void checkExistOrder(List<Order> orders, Order order) {
+        if (orders == null || orders.isEmpty() || !orders.contains(order)) {
             throw new NotFoundEntityException(ORDER_NOT_FOUND);
         }
-        return orderMapper.mapToDto(order);
     }
 }

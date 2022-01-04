@@ -27,6 +27,14 @@ public class Order extends BaseEntity {
 
     public Order() {}
 
+    public Order(long id, User user, GiftCertificate giftCertificate, ZonedDateTime orderDate, BigDecimal cost) {
+        super(id);
+        this.user = user;
+        this.giftCertificate = giftCertificate;
+        this.orderDate = orderDate;
+        this.cost = cost;
+    }
+
     @PrePersist
     public void onCreate() {
         orderDate = ZonedDateTime.now();

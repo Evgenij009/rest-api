@@ -20,7 +20,7 @@ import java.util.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestJpaConfig.class)
 @Transactional
-public class GiftCertificateRepositoryImplTest {
+class GiftCertificateRepositoryImplTest {
     private static final GiftCertificate CERTIFICATE_TO_CREATE = new GiftCertificate(
             "certificate new", "description new", new BigDecimal("1.10"), 1,
             LocalDateTime.parse("2020-01-01T01:11:11").atZone(ZoneId.of("Europe/Minsk")),

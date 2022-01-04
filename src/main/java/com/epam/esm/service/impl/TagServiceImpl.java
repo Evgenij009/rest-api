@@ -11,6 +11,7 @@ import com.epam.esm.model.entity.User;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.repository.UserRepository;
 import com.epam.esm.service.TagService;
+import com.epam.esm.validator.RequestParametersValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ public class TagServiceImpl implements TagService {
     private static final String TAG_NOT_FOUND = "tag.not.found";
     private static final String TAG_LIST_IS_EMPTY = "tag.list.is.empty";
     private static final String TAG_EXIST = "tag.exist";
+    private static final String INVALID_PAGINATION = "validation.pagination";
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
     private final TagMapper tagMapper;
@@ -51,6 +53,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<TagDto> findAllWithPagination(int page, int size) {
+        RequestParametersValidator.validatePaginationParams(page, size);
         return tagMapper.mapListToDto(tagRepository.findAllWithPagination(page, size));
     }
 

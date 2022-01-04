@@ -47,6 +47,11 @@ public class UserDto extends RepresentationModel<UserDto> {
         this.spentMoney = spentMoney;
     }
 
+    public UserDto(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public String getLogin() {
         return login;
     }

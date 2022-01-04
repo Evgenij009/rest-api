@@ -1,6 +1,9 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.exception.*;
+import com.epam.esm.exception.DuplicateEntityException;
+import com.epam.esm.exception.InvalidParameterException;
+import com.epam.esm.exception.NotFoundEntityException;
+import com.epam.esm.exception.ValidationExceptionChecker;
 import com.epam.esm.model.dto.OrderDto;
 import com.epam.esm.model.dto.UserDto;
 import com.epam.esm.model.dto.UserResponseDto;
@@ -82,5 +85,20 @@ public class UserController {
         OrderDto orderDto = orderService.findByUserId(id, orderId);
         orderLinkProvider.provideLinks(orderDto);
         return orderDto;
+    }
+
+    @GetMapping("/{id}/orders")
+    @ResponseStatus(HttpStatus.OK)
+    public List<OrderDto> getOrdersByUserId(
+            @PathVariable long id,
+            @RequestParam(value = PAGE, required = false, defaultValue = DEFAULT_PAGE) int page,
+            @RequestParam(value = SIZE, required = false, defaultValue = DEFAULT_SIZE) int size
+    ) throws InvalidParameterException, NotFoundEntityException {
+        RequestParametersValidator.validateId(id);
+        RequestParametersValidator.validatePaginationParams(page, size);
+        List<OrderDto> orderDtoList = orderService.findAllByUserId(id, page, size);
+        return orderDtoList.stream()
+                .peek(orderLinkProvider::provideLinks)
+                .collect(Collectors.toList());
     }
 }

@@ -10,7 +10,9 @@ public class CreateOrderDto {
     private long userId;
     @NotNull
     @Min(1)
-    long certificateId;
+    private long certificateId;
+
+    public CreateOrderDto() {}
 
     public CreateOrderDto(long userId, long certificateId) {
         this.userId = userId;

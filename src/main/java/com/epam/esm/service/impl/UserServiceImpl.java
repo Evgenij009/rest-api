@@ -14,6 +14,7 @@ import com.epam.esm.repository.UserRepository;
 import com.epam.esm.service.UserService;
 import com.epam.esm.util.ColumnName;
 import com.epam.esm.util.LineHasher;
+import com.epam.esm.validator.RequestParametersValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +46,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public List<UserResponseDto> findAll(int page, int size) {
+        RequestParametersValidator.validatePaginationParams(page, size);
         return userResponseMapper.mapListToDto(userRepository.findAllWithPagination(page, size));
     }
 

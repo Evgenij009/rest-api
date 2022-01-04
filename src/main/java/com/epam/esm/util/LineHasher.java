@@ -21,7 +21,7 @@ public class LineHasher {
             byte[] digest = messageDigest.digest();
             return String.format(FORMAT_LINE, new BigInteger(ONE, digest));
         } catch (NoSuchAlgorithmException e) {
-            LOGGER.error("Hash algorithm error: " + e);
+            LOGGER.error("Hash algorithm error: {0}", e);
         }
         return null;
     }
