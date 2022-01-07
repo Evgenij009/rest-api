@@ -30,7 +30,7 @@ public class UpdateGiftCertificateDto extends RepresentationModel<UpdateGiftCert
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private ZonedDateTime lastUpdateDate;
-    private List<TagDto> tagDtoList;
+    private List<TagDto> tagList;
 
     /**
      * Instantiates a new Update gift certificate dto.
@@ -53,7 +53,7 @@ public class UpdateGiftCertificateDto extends RepresentationModel<UpdateGiftCert
         this.duration = duration;
         this.createDate = createDate;
         this.lastUpdateDate = lastUpdateDate;
-        this.tagDtoList = tagDtoList;
+        this.tagList = tagDtoList;
     }
 
     public long getId() {
@@ -112,19 +112,19 @@ public class UpdateGiftCertificateDto extends RepresentationModel<UpdateGiftCert
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public List<TagDto> getTagDtoList() {
-        return tagDtoList;
+    public List<TagDto> getTagList() {
+        return tagList;
     }
 
-    public void setTagDtoList(List<TagDto> tagDtoList) {
-        this.tagDtoList = tagDtoList;
+    public void setTagList(List<TagDto> tagList) {
+        this.tagList = tagList;
     }
 
     public void addTag(TagDto tagDto) {
-        if (tagDtoList == null) {
-            tagDtoList = new ArrayList<>();
+        if (tagList == null) {
+            tagList = new ArrayList<>();
         }
-        tagDtoList.add(tagDto);
+        tagList.add(tagDto);
     }
 
     @Override
@@ -139,7 +139,7 @@ public class UpdateGiftCertificateDto extends RepresentationModel<UpdateGiftCert
                 && Objects.equals(price, that.price)
                 && Objects.equals(createDate, that.createDate)
                 && Objects.equals(lastUpdateDate, that.lastUpdateDate)
-                && Objects.equals(tagDtoList, that.tagDtoList);
+                && Objects.equals(tagList, that.tagList);
     }
 
     @Override
@@ -152,7 +152,7 @@ public class UpdateGiftCertificateDto extends RepresentationModel<UpdateGiftCert
         result = 31 * result + duration;
         result = 31 * result + (createDate != null ? createDate.hashCode() : 0);
         result = 31 * result + (lastUpdateDate != null ? lastUpdateDate.hashCode() : 0);
-        result = 31 * result + (tagDtoList != null ? tagDtoList.hashCode() : 0);
+        result = 31 * result + (tagList != null ? tagList.hashCode() : 0);
         return result;
     }
 
@@ -166,7 +166,7 @@ public class UpdateGiftCertificateDto extends RepresentationModel<UpdateGiftCert
                 .add("duration=" + duration)
                 .add("createDate=" + createDate)
                 .add("lastUpdateDate=" + lastUpdateDate)
-                .add("tagDtoList=" + tagDtoList)
+                .add("tagDtoList=" + tagList)
                 .toString();
     }
 }

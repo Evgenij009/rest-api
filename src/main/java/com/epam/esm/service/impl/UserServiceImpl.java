@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
         if (userRepository.findByField(ColumnName.LOGIN, user.getLogin()).isPresent()) {
             throw new DuplicateEntityException("user.exist");
         }
-        Role roleUser = roleRepository.findByName("ROLE_USER")
+        Role roleUser = roleRepository.findByName("USER")
                 .orElseThrow(() -> new NotFoundEntityException("role.not.found"));
         Set<Role> userRoles = new HashSet<>();
         userRoles.add(roleUser);
