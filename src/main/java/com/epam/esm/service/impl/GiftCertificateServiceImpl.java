@@ -76,8 +76,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         GiftCertificate giftCertificate = checkExistGiftCertificateById(id);
         GiftCertificate updateGiftCertificate = updateGiftCertificateMapper.mapToEntity(updateGiftCertificateDto);
         updateFields(giftCertificate, updateGiftCertificate);
-        if (giftCertificate.getTagList() != null) {
-            List<Tag> tags = giftCertificate.getTagList();
+        if (updateGiftCertificate.getTagList() != null) {
+            List<Tag> tags = updateGiftCertificate.getTagList();
             giftCertificate.setTagList(addTags(tags));
         }
         return giftCertificateMapper.mapToDto(giftCertificateRepository.update(giftCertificate));
