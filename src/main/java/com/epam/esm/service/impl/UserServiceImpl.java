@@ -13,9 +13,9 @@ import com.epam.esm.repository.RoleRepository;
 import com.epam.esm.repository.UserRepository;
 import com.epam.esm.service.UserService;
 import com.epam.esm.util.ColumnName;
-import com.epam.esm.util.LineHasher;
 import com.epam.esm.validator.RequestParametersValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,16 +31,19 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final UserResponseMapper userResponseMapper;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
                            UserMapper userMapper,
                            UserResponseMapper userResponseMapper,
-                           RoleRepository roleRepository) {
+                           RoleRepository roleRepository,
+                           PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.userResponseMapper = userResponseMapper;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -81,12 +84,11 @@ public class UserServiceImpl implements UserService {
         if (userRepository.findByField(ColumnName.LOGIN, user.getLogin()).isPresent()) {
             throw new DuplicateEntityException("user.exist");
         }
-        Role roleUser = roleRepository.findByName("USER")
+        Role roleUser = roleRepository.findByName("ROLE_USER")
                 .orElseThrow(() -> new NotFoundEntityException("role.not.found"));
         Set<Role> userRoles = new HashSet<>();
         userRoles.add(roleUser);
-        LineHasher lineHasher = new LineHasher();
-        user.setPassword(lineHasher.hashingLine(userDto.getPassword()));
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setStatus(Status.ACTIVE);
         user.setRoles(userRoles);
         return userResponseMapper.mapToDto(userRepository.create(user));

@@ -11,12 +11,14 @@ import com.epam.esm.service.OrderService;
 import com.epam.esm.service.UserService;
 import com.epam.esm.util.link.OrderLinkProvider;
 import com.epam.esm.util.link.UserLinkProvider;
+import com.epam.esm.util.security.UserAccessService;
 import com.epam.esm.validator.RequestParametersValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,16 +32,19 @@ public class UserController {
     private final OrderService orderService;
     private final UserLinkProvider userLinkProvider;
     private final OrderLinkProvider orderLinkProvider;
+    private final UserAccessService userAccessService;
 
     @Autowired
     public UserController(UserService userService,
                           OrderService orderService,
                           UserLinkProvider userLinkProvider,
-                          OrderLinkProvider orderLinkProvider) {
+                          OrderLinkProvider orderLinkProvider,
+                          UserAccessService userAccessService) {
         this.userService = userService;
         this.orderService = orderService;
         this.userLinkProvider = userLinkProvider;
         this.orderLinkProvider = orderLinkProvider;
+        this.userAccessService = userAccessService;
     }
 
     @PostMapping
@@ -68,8 +73,10 @@ public class UserController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public UserResponseDto findById(@PathVariable long id) throws NotFoundEntityException {
+    public UserResponseDto findById(HttpServletRequest httpServletRequest,
+                                    @PathVariable long id) throws NotFoundEntityException {
         RequestParametersValidator.validateId(id);
+        userAccessService.checkAccess(httpServletRequest, id);
         UserResponseDto userResponseDto = userService.findById(id);
         userLinkProvider.provideLinks(userResponseDto);
         return userResponseDto;
@@ -79,8 +86,10 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public OrderDto findOrderByUserId(
             @PathVariable(value = "id") long id,
-            @PathVariable(value = "orderId") long orderId) throws NotFoundEntityException {
+            @PathVariable(value = "orderId") long orderId,
+            HttpServletRequest httpServletRequest) throws NotFoundEntityException {
         RequestParametersValidator.validateId(id);
+        userAccessService.checkAccess(httpServletRequest, id);
         RequestParametersValidator.validateId(orderId);
         OrderDto orderDto = orderService.findByUserId(id, orderId);
         orderLinkProvider.provideLinks(orderDto);
@@ -92,9 +101,10 @@ public class UserController {
     public List<OrderDto> getOrdersByUserId(
             @PathVariable long id,
             @RequestParam(value = PAGE, required = false, defaultValue = DEFAULT_PAGE) int page,
-            @RequestParam(value = SIZE, required = false, defaultValue = DEFAULT_SIZE) int size
-    ) throws InvalidParameterException, NotFoundEntityException {
+            @RequestParam(value = SIZE, required = false, defaultValue = DEFAULT_SIZE) int size,
+            HttpServletRequest httpServletRequest) throws InvalidParameterException, NotFoundEntityException {
         RequestParametersValidator.validateId(id);
+        userAccessService.checkAccess(httpServletRequest, id);
         RequestParametersValidator.validatePaginationParams(page, size);
         List<OrderDto> orderDtoList = orderService.findAllByUserId(id, page, size);
         return orderDtoList.stream()
