@@ -31,10 +31,6 @@ public class JwtUser implements UserDetails {
         return id;
     }
 
-    public String getLogin() {
-        return login;
-    }
-
     public String getName() {
         return name;
     }
