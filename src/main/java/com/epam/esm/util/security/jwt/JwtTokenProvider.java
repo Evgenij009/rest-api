@@ -64,7 +64,7 @@ public class JwtTokenProvider {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
     }
 
-    public List getRoles(String token) {
+    public List<String> getRoles(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().get(ROLES, ArrayList.class);
     }
 
