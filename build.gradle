@@ -1,6 +1,11 @@
 plugins {
     id 'java'
+    id "org.springframework.boot" version "2.0.1.RELEASE"
 }
+
+apply plugin: 'java'
+
+apply plugin: 'org.springframework.boot'
 
 group = "com.epam"
 version = '1.0.1-SNAPSHOT'
@@ -38,6 +43,10 @@ dependencies {
     implementation "org.mapstruct:mapstruct:1.4.2.Final"
     annotationProcessor "org.mapstruct:mapstruct-processor:1.4.2.Final"
     testAnnotationProcessor "org.mapstruct:mapstruct-processor:1.4.2.Final"
+}
+
+springBoot {
+    mainClassName = 'com.epam.esm.config.App'
 }
 
 test {
